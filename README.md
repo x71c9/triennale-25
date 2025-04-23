@@ -1,6 +1,6 @@
 # Triennale 2025
 
-Four Raspberry Pi will stream 2 camera feeds with this repository code:
+The 4 Raspberry Pi will stream 2 camera feeds with this repository code:
 [https://github.com/ayufan/camera-streamer/releases/tag/v0.2.8](https://github.com/ayufan/camera-streamer/releases/tag/v0.2.8)
 
 Install the binaries for the Pis with these commands:
