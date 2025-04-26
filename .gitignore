@@ -2,3 +2,7 @@
 *.swo
 .DS_Store
 hls
+target
+Cargo.lock
+__pycache__/
+*.pyc
