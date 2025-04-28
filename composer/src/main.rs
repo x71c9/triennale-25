@@ -6,6 +6,8 @@ use services::robotpositions::send;
 use robots::init;
 use std::thread;
 
+pub const DEBUG: bool = true;
+
 fn main() {
 
   let handle = thread::spawn(|| {
