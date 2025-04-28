@@ -4,8 +4,7 @@ use std::{net::UdpSocket, process::Command, thread, time::Duration};
 
 const LOCAL_BIND_ADDR: &str = "0.0.0.0:0";
 const TARGET_ADDR: &str = "127.0.0.1:5000";
-const PYTHON_SCRIPT_PATH: &str =
-  "/Users/x71c9/repos/triennale-25/composer/get-positions.py";
+const PYTHON_SCRIPT_PATH: &str = "scripts/get-position.py";
 
 pub fn send() -> std::io::Result<()> {
   let socket = UdpSocket::bind(LOCAL_BIND_ADDR)?;
