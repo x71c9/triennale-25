@@ -1,24 +1,28 @@
-mod services;
-mod robots;
-mod utils;
+use futures::future;
+use tokio::task;
 
-use services::robotpositions::send;
-use robots::init;
-use std::thread;
+mod robots;
+mod services;
+mod utils;
 
 pub const DEBUG: bool = true;
 
-fn main() {
+#[tokio::main]
+async fn main() {
+  let mut tasks = Vec::new();
 
-  let handle = thread::spawn(|| {
-    if let Err(e) = send() {
-        eprintln!("Error in send: {}", e);
-    }
+  let robotposition_service_task = task::spawn(async move {
+    services::robotpositions::send().expect("[!] ERROR: Robotposition service failed");
   });
+  tasks.push(robotposition_service_task);
 
-  println!("Main thread is continuing...");
+  let robot_initialization_task = task::spawn(async move {
+    robots::init();
+  });
+  tasks.push(robot_initialization_task);
 
-  init();
-
-  handle.join().unwrap();
+  match future::try_join_all(tasks).await {
+    Ok(_) => println!("All tasks completed successfully."),
+    Err(e) => eprintln!("A task failed: {:?}", e),
+  }
 }

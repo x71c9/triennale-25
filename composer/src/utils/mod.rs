@@ -18,7 +18,7 @@ impl ScriptName {
   }
 }
 
-pub fn sleep(ms: u64){
+pub fn sleep(ms: u64) {
   println!("Sleeping for {} milliseconds...", ms.to_string());
   thread::sleep(Duration::from_millis(ms));
 }
@@ -42,7 +42,10 @@ pub fn get_scripts_dir() -> PathBuf {
   return script_dir;
 }
 
-pub fn invoke_script(script_name: &ScriptName, args: &[&str]) -> Option<String> {
+pub fn invoke_script(
+  script_name: &ScriptName,
+  args: &[&str],
+) -> Option<String> {
   let script_file_name = format!("{}.py", script_name.as_str());
   let scripts_dir = get_scripts_dir();
   let script_path = scripts_dir.join(script_file_name);
@@ -75,7 +78,8 @@ pub fn invoke_set_position(id: &u8, position: &f64) {
 
 pub fn invoke_get_position(id: &u8) -> String {
   crate::log_enter!("invoke_get_position", id);
-  let response = invoke_script(&ScriptName::GetPosition, &[id.to_string().as_str()]);
+  let response =
+    invoke_script(&ScriptName::GetPosition, &[id.to_string().as_str()]);
   let unwrapped = response.unwrap();
   print!("Get position returned: ------> {}", unwrapped);
   crate::log_exit!("invoke_get_position", id);
