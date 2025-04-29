@@ -12,7 +12,8 @@ async fn main() {
   let mut tasks = Vec::new();
 
   let robotposition_service_task = task::spawn(async move {
-    services::robotpositions::send().expect("[!] ERROR: Robotposition service failed");
+    services::robotpositions::send()
+      .expect("[!] ERROR: Robotposition service failed");
   });
   tasks.push(robotposition_service_task);
 
