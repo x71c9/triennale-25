@@ -4,6 +4,8 @@ use std::process::Command;
 use std::thread;
 use std::time::Duration;
 
+use crate::DRY_RUN;
+
 pub enum ScriptName {
   GetPosition,
   SetPosition,
@@ -70,6 +72,10 @@ pub fn invoke_script(
 }
 
 pub fn invoke_set_position(id: &u8, position: &f64) {
+  if DRY_RUN {
+    print_dry_run("Invoked set position script");
+    return;
+  }
   invoke_script(
     &ScriptName::SetPosition,
     &[id.to_string().as_str(), position.to_string().as_str()],
@@ -84,6 +90,10 @@ pub fn invoke_get_position(id: &u8) -> String {
   print!("Get position returned: ------> {}", unwrapped);
   crate::log_exit!("invoke_get_position", id);
   return unwrapped;
+}
+
+pub fn print_dry_run(msg: &str) {
+  println!("[DRY RUN]: {}", msg);
 }
 
 #[macro_export]
