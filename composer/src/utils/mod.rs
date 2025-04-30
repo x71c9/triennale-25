@@ -1,4 +1,6 @@
+use serialport::TTYPort;
 use std::env;
+use std::io::Write;
 use std::path::PathBuf;
 use std::process::Command;
 use std::thread;
@@ -17,6 +19,25 @@ impl ScriptName {
       ScriptName::GetPosition => "get-position",
       ScriptName::SetPosition => "set-position",
     }
+  }
+}
+
+pub struct SerialRelay {
+  port: TTYPort,
+}
+
+impl SerialRelay {
+  pub fn new(port_name: &str, baud_rate: u32) -> anyhow::Result<Self> {
+    let port = serialport::new(port_name, baud_rate)
+      .timeout(Duration::from_secs(2))
+      .open_native()?;
+    Ok(SerialRelay { port })
+  }
+
+  pub fn send_message(&mut self, message: &str) -> anyhow::Result<()> {
+    let msg = format!("{}\n", message);
+    self.port.write_all(msg.as_bytes())?;
+    Ok(())
   }
 }
 
