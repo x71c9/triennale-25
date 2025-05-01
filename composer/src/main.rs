@@ -37,15 +37,25 @@ async fn main() {
   });
   tasks.push(robot_initialization_task);
 
+  let mut light_manager = lights::LightManager::new();
+
   let lights_initialization_task = task::spawn(async move {
+    // TODO
+    println!("Light async job...");
+    light_manager.light_a.turn_on();
     utils::sleep(5000);
-    lights::init();
+    light_manager.light_a.turn_off();
   });
   tasks.push(lights_initialization_task);
 
+  let mut sparkling_manager = sparklings::SparklingManager::new();
+
   let sparkling_initialization_task = task::spawn(async move {
-    utils::sleep(15000);
-    sparklings::init();
+    // TODO
+    println!("Sparkling async job...");
+    sparkling_manager.sparkling_a.turn_on();
+    utils::sleep(5000);
+    sparkling_manager.sparkling_a.turn_off();
   });
   tasks.push(sparkling_initialization_task);
 

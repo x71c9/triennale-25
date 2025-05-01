@@ -1,60 +1,100 @@
-use crate::utils::{print_dry_run, sleep, SerialRelay};
-
+use crate::utils::{self, print_dry_run, SerialDevice};
 use crate::DRY_RUN;
 
-const LIGHTS_ID: [u8; 6] = [0, 1, 2, 3, 4, 5];
+const LIGHT_SERIAL_PORT_NAME: &'static str = "/dev/tty.usbmodem14101";
+const LIGHT_SERIAL_BAUD: u32 = 9600;
 
-pub fn init() {
-  let port_name = "/dev/tty.usbmodem14101";
-  let baud = 9600;
-
-  let mut relay = SerialRelay::new(port_name, baud).unwrap();
-  relay.send_message("ON").expect("Failed to send ON message");
-  std::thread::sleep(std::time::Duration::from_secs(2));
-  relay
-    .send_message("OFF")
-    .expect("Failed to send OFF message");
-
-  const INIT_LIGHTS_SLEEP_SECONDS: u64 = 5000;
-
-  all_turn_on();
-  sleep(INIT_LIGHTS_SLEEP_SECONDS);
-  all_turn_off();
-  sleep(INIT_LIGHTS_SLEEP_SECONDS);
+pub struct LightManager {
+  pub light_a: Light,
+  pub light_b: Light,
+  pub light_c: Light,
+  pub light_d: Light,
+  pub light_e: Light,
+  pub light_f: Light,
 }
 
-fn all_turn_on() {
-  crate::log_enter!("lights.all_turn_on", "");
-  for id in LIGHTS_ID.iter() {
-    turn_on(id);
+impl LightManager {
+  pub fn new() -> Self {
+    let mut light_manager: LightManager = LightManager {
+      light_a: Light::new(0, "A"),
+      light_b: Light::new(1, "B"),
+      light_c: Light::new(2, "C"),
+      light_d: Light::new(3, "D"),
+      light_e: Light::new(4, "E"),
+      light_f: Light::new(5, "F"),
+    };
+    light_manager.all_turn_on();
+    utils::sleep(5000);
+    light_manager.all_turn_off();
+    return light_manager;
   }
-  crate::log_exit!("lights.all_turn_on", "");
+  pub fn all_turn_on(&mut self) {
+    crate::log_enter!("lights.all_turn_on", "");
+    self.light_a.turn_on();
+    self.light_b.turn_on();
+    self.light_c.turn_on();
+    self.light_d.turn_on();
+    self.light_e.turn_on();
+    self.light_f.turn_on();
+    crate::log_exit!("lights.all_turn_on", "");
+  }
+  pub fn all_turn_off(&mut self) {
+    crate::log_enter!("lights.all_turn_off", "");
+    self.light_a.turn_off();
+    self.light_b.turn_off();
+    self.light_c.turn_off();
+    self.light_d.turn_off();
+    self.light_e.turn_off();
+    self.light_f.turn_off();
+    crate::log_exit!("lights.all_turn_off", "");
+  }
 }
 
-fn all_turn_off() {
-  crate::log_enter!("lights.all_turn_off", "");
-  for id in LIGHTS_ID.iter() {
-    turn_off(id);
-  }
-  crate::log_exit!("lights.all_turn_off", "");
+pub struct Light {
+  pub id: u8,
+  pub name: &'static str,
+  pub serial_device: SerialDevice,
 }
 
-fn turn_on(id: &u8) {
-  crate::log_enter!("lights.turn_on", id);
-  if DRY_RUN {
-    print_dry_run(format!("LIGHT [{}] turned ON", id).as_str());
-    return;
+impl Light {
+  pub fn new(id: u8, name: &'static str) -> Self {
+    let light: Light = Light {
+      id,
+      name,
+      serial_device: SerialDevice::new(
+        LIGHT_SERIAL_PORT_NAME,
+        LIGHT_SERIAL_BAUD,
+      )
+      .unwrap(),
+    };
+    light.print();
+    return light;
   }
-  // TODO
-  crate::log_exit!("lights.turn_on", id);
-}
-
-fn turn_off(id: &u8) {
-  crate::log_enter!("lights.turn_off", id);
-  if DRY_RUN {
-    print_dry_run(format!("LIGHT [{}] turned OFF", id).as_str());
-    return;
+  pub fn turn_on(&mut self) {
+    crate::log_enter!("lights.turn_on", self.name);
+    if DRY_RUN {
+      print_dry_run(format!("LIGHT [{}] turned ON", self.name).as_str());
+      return;
+    }
+    self
+      .serial_device
+      .send_message("on")
+      .expect("failed to send on message on");
+    crate::log_exit!("lights.turn_on", self.name);
   }
-  // TODO
-  crate::log_exit!("lights.turn_off", id);
+  pub fn turn_off(&mut self) {
+    crate::log_enter!("lights.turn_off", self.name);
+    if DRY_RUN {
+      print_dry_run(format!("LIGHT [{}] turned OFF", self.name).as_str());
+      return;
+    }
+    self
+      .serial_device
+      .send_message("off")
+      .expect("failed to send on message off");
+    crate::log_exit!("lights.turn_off", self.name);
+  }
+  fn print(&self) {
+    println!("{} {}", self.id, self.name);
+  }
 }

@@ -22,16 +22,16 @@ impl ScriptName {
   }
 }
 
-pub struct SerialRelay {
+pub struct SerialDevice {
   port: TTYPort,
 }
 
-impl SerialRelay {
+impl SerialDevice {
   pub fn new(port_name: &str, baud_rate: u32) -> anyhow::Result<Self> {
     let port = serialport::new(port_name, baud_rate)
       .timeout(Duration::from_secs(2))
       .open_native()?;
-    Ok(SerialRelay { port })
+    Ok(SerialDevice { port })
   }
 
   pub fn send_message(&mut self, message: &str) -> anyhow::Result<()> {
