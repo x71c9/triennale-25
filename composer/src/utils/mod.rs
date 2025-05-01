@@ -6,18 +6,18 @@ use std::process::Command;
 use std::thread;
 use std::time::Duration;
 
-use crate::DRY_RUN;
-
 pub enum ScriptName {
-  GetPosition,
-  SetPosition,
+  RobotGetPosition,
+  RobotSetPosition,
+  RobotInit,
 }
 
 impl ScriptName {
   fn as_str(&self) -> &'static str {
     match self {
-      ScriptName::GetPosition => "get-position",
-      ScriptName::SetPosition => "set-position",
+      ScriptName::RobotGetPosition => "triennale-get-position",
+      ScriptName::RobotSetPosition => "triennale-set-position",
+      ScriptName::RobotInit => "triennale-init",
     }
   }
 }
@@ -90,27 +90,6 @@ pub fn invoke_script(
   }
 
   return Some(String::from_utf8_lossy(&output.stdout).to_string());
-}
-
-pub fn invoke_set_position(id: &u8, position: &f64) {
-  if DRY_RUN {
-    print_dry_run("Invoked set position script");
-    return;
-  }
-  invoke_script(
-    &ScriptName::SetPosition,
-    &[id.to_string().as_str(), position.to_string().as_str()],
-  );
-}
-
-pub fn invoke_get_position(id: &u8) -> String {
-  crate::log_enter!("invoke_get_position", id);
-  let response =
-    invoke_script(&ScriptName::GetPosition, &[id.to_string().as_str()]);
-  let unwrapped = response.unwrap();
-  print!("Get position returned: ------> {}", unwrapped);
-  crate::log_exit!("invoke_get_position", id);
-  return unwrapped;
 }
 
 pub fn print_dry_run(msg: &str) {

@@ -20,8 +20,14 @@ async fn main() {
   });
   tasks.push(robotposition_service_task);
 
+  let robot_manager = robots::RobotManager::new();
+  robot_manager.initialize_all();
+
   let robot_initialization_task = task::spawn(async move {
-    robots::init();
+    // TODO
+    println!("Robot async job...");
+    robot_manager.robot_a.set_position(0.5);
+    robot_manager.robot_b.get_position();
   });
   tasks.push(robot_initialization_task);
 
@@ -38,7 +44,7 @@ async fn main() {
   tasks.push(sparkling_initialization_task);
 
   match future::try_join_all(tasks).await {
-    Ok(_) => println!("All tasks completed successfully."),
-    Err(e) => eprintln!("A task failed: {:?}", e),
+    Ok(_) => println!("[*] All tasks completed successfully."),
+    Err(e) => eprintln!("[!] A task failed: {:?}", e),
   }
 }
