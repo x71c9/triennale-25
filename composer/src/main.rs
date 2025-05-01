@@ -12,6 +12,12 @@ pub const DRY_RUN: bool = true;
 
 #[tokio::main]
 async fn main() {
+
+  std::panic::set_hook(Box::new(|info| {
+    eprintln!("[!] Panic occurred: {info}");
+    std::process::exit(1);
+  }));
+
   let mut tasks = Vec::new();
 
   let robotposition_service_task = task::spawn(async move {

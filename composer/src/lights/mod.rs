@@ -11,7 +11,9 @@ pub fn init() {
   let mut relay = SerialRelay::new(port_name, baud).unwrap();
   relay.send_message("ON").expect("Failed to send ON message");
   std::thread::sleep(std::time::Duration::from_secs(2));
-  relay.send_message("OFF").expect("Failed to send OFF message");
+  relay
+    .send_message("OFF")
+    .expect("Failed to send OFF message");
 
   const INIT_LIGHTS_SLEEP_SECONDS: u64 = 5000;
 
