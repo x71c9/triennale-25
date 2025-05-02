@@ -22,6 +22,10 @@ impl SparklingManager {
     sparkiling_manager.all_turn_off();
     return sparkiling_manager;
   }
+  pub fn run_sparkling(&self){
+    // TODO
+    self.sparkling_a.run_sparkling();
+  }
   pub fn all_turn_on(&mut self) {
     crate::log_enter!("sparkling.all_turn_on", "");
     self.sparkling_a.turn_on();
@@ -57,6 +61,9 @@ impl Sparkling {
     };
     light.print();
     return light;
+  }
+  pub fn run_sparkling(&self){
+    // TODO
   }
   pub fn turn_on(&mut self) {
     crate::log_enter!("sparkling.turn_on", self.name);

@@ -25,6 +25,32 @@ impl RobotManager {
     self.robot_c.init();
     self.robot_d.init();
   }
+  pub fn start_buffering(&self){
+    // TODO
+    self.robot_a.start_buffering();
+    // self.robot_b.start_buffering();
+    // self.robot_c.start_buffering();
+    // self.robot_d.start_buffering();
+  }
+  pub fn stop_buffering(&self){
+    // TODO
+    self.robot_a.stop_buffering();
+    // self.robot_b.stop_buffering();
+    // self.robot_c.stop_buffering();
+    // self.robot_d.stop_buffering();
+
+    // let position = self.robot_a.get_position();
+    // let position_f64 = position.parse::<f64>().unwrap();
+    // self.robot_a.set_position(position_f64);
+  }
+  pub fn move_to_scanning_position(&self){
+    // TODO
+    self.robot_a.move_to_scanning_position();
+  }
+  pub fn move_to_syncing_position(&self){
+    // TODO
+    self.robot_a.move_to_syncing_position();
+  }
 }
 
 pub struct Robot {
@@ -49,6 +75,20 @@ impl Robot {
       return;
     }
     utils::invoke_script(&utils::ScriptName::RobotInit, &[&self.name]);
+  }
+  pub fn move_to_scanning_position(&self){
+    self.set_position(0.8);
+  }
+  pub fn move_to_syncing_position(&self){
+    self.set_position(0.2);
+  }
+  pub fn start_buffering(&self){
+    self.set_position(0.5);
+  }
+  pub fn stop_buffering(&self){
+    let position = self.get_position();
+    let position_f64 = position.parse::<f64>().unwrap();
+    self.set_position(position_f64);
   }
   pub fn set_position(&self, position: f64) {
     if DRY_RUN {

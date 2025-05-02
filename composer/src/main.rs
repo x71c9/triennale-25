@@ -1,5 +1,5 @@
-use futures::future;
-use tokio::task;
+use std::collections::HashMap;
+use tokio::task::{self, JoinHandle};
 
 mod lights;
 mod robots;
@@ -10,57 +10,77 @@ mod utils;
 pub const DEBUG: bool = false;
 pub const DRY_RUN: bool = true;
 
+struct Composer {
+  robot_manager: robots::RobotManager,
+  light_manager: lights::LightManager,
+  sparkling_manager: sparklings::SparklingManager,
+  tasks: HashMap<String, JoinHandle<()>>,
+}
+
+impl Composer {
+  fn new() -> Self {
+    let mut composer: Composer = Composer {
+      robot_manager: robots::RobotManager::new(),
+      light_manager: lights::LightManager::new(),
+      sparkling_manager: sparklings::SparklingManager::new(),
+      tasks: HashMap::new(),
+    };
+    composer.robot_manager.initialize_all();
+
+    let robotposition_service_task = task::spawn(async {
+      services::robotpositions::send()
+        .expect("[!] ERROR: Robotposition service failed");
+    });
+    composer.tasks.insert(
+      "robotpositions_service".to_string(),
+      robotposition_service_task,
+    );
+    return composer;
+  }
+  fn start(&self) {
+    loop {
+      self.start_buffering();
+      utils::sleep(20 * 60); // 20 min
+
+      self.start_scanning();
+      utils::sleep(2 * 60); // 2 min
+
+      self.start_buffering();
+      utils::sleep(20 * 60); // 20 min
+
+      self.start_syncing();
+      utils::sleep(2 * 60); // 2 min
+    }
+  }
+  fn start_buffering(&self) {
+    println!("Started buffering...");
+    self.robot_manager.start_buffering();
+  }
+  fn stop_buffering(&self) {
+    println!("Stopped buffering");
+    self.robot_manager.stop_buffering();
+  }
+  fn start_scanning(&self) {
+    println!("Started buffering...");
+    self.stop_buffering();
+    self.robot_manager.move_to_scanning_position();
+    self.sparkling_manager.run_sparkling();
+  }
+  fn start_syncing(&self) {
+    println!("Started syncing...");
+    self.stop_buffering();
+    self.robot_manager.move_to_syncing_position();
+    self.light_manager.regulate_light();
+  }
+}
+
 #[tokio::main]
 async fn main() {
-
   std::panic::set_hook(Box::new(|info| {
     eprintln!("[!] Panic occurred: {info}");
     std::process::exit(1);
   }));
 
-  let mut tasks = Vec::new();
-
-  let robotposition_service_task = task::spawn(async move {
-    services::robotpositions::send()
-      .expect("[!] ERROR: Robotposition service failed");
-  });
-  tasks.push(robotposition_service_task);
-
-  let robot_manager = robots::RobotManager::new();
-  robot_manager.initialize_all();
-
-  let robot_initialization_task = task::spawn(async move {
-    // TODO
-    println!("Robot async job...");
-    robot_manager.robot_a.set_position(0.5);
-    robot_manager.robot_b.get_position();
-  });
-  tasks.push(robot_initialization_task);
-
-  let mut light_manager = lights::LightManager::new();
-
-  let lights_initialization_task = task::spawn(async move {
-    // TODO
-    println!("Light async job...");
-    light_manager.light_a.turn_on();
-    utils::sleep(5000);
-    light_manager.light_a.turn_off();
-  });
-  tasks.push(lights_initialization_task);
-
-  let mut sparkling_manager = sparklings::SparklingManager::new();
-
-  let sparkling_initialization_task = task::spawn(async move {
-    // TODO
-    println!("Sparkling async job...");
-    sparkling_manager.sparkling_a.turn_on();
-    utils::sleep(5000);
-    sparkling_manager.sparkling_a.turn_off();
-  });
-  tasks.push(sparkling_initialization_task);
-
-  match future::try_join_all(tasks).await {
-    Ok(_) => println!("[*] All tasks completed successfully."),
-    Err(e) => eprintln!("[!] A task failed: {:?}", e),
-  }
+  let composer = Composer::new();
+  composer.start();
 }

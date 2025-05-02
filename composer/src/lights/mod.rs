@@ -28,6 +28,10 @@ impl LightManager {
     light_manager.all_turn_off();
     return light_manager;
   }
+  pub fn regulate_light(&self){
+    // TODO
+    self.light_a.regulate_light();
+  }
   pub fn all_turn_on(&mut self) {
     crate::log_enter!("lights.all_turn_on", "");
     self.light_a.turn_on();
@@ -69,6 +73,9 @@ impl Light {
     };
     light.print();
     return light;
+  }
+  pub fn regulate_light(&self){
+    // TODO
   }
   pub fn turn_on(&mut self) {
     crate::log_enter!("lights.turn_on", self.name);
