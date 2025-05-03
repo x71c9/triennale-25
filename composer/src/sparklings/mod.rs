@@ -22,7 +22,7 @@ impl SparklingManager {
     sparkiling_manager.all_turn_off();
     return sparkiling_manager;
   }
-  pub fn run_sparkling(&self){
+  pub async fn run_sparkling(&self){
     // TODO
     self.sparkling_a.run_sparkling();
   }

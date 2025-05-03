@@ -37,40 +37,30 @@ impl Composer {
     );
     return composer;
   }
-  fn start(&self) {
+  async fn start(&mut self) {
     loop {
-      self.start_buffering();
-      utils::sleep(20 * 60); // 20 min
+      self.start_buffering().await;
 
-      self.start_scanning();
-      utils::sleep(2 * 60); // 2 min
+      self.start_scanning().await;
 
-      self.start_buffering();
-      utils::sleep(20 * 60); // 20 min
+      self.start_buffering().await;
 
-      self.start_syncing();
-      utils::sleep(2 * 60); // 2 min
+      self.start_syncing().await;
     }
   }
-  fn start_buffering(&self) {
-    println!("Started buffering...");
-    self.robot_manager.start_buffering();
+  async fn start_buffering(&mut self) {
+    println!("BUFFERING STATE INITIATED...");
+    self.robot_manager.start_buffering().await;
   }
-  fn stop_buffering(&self) {
-    println!("Stopped buffering");
-    self.robot_manager.stop_buffering();
+  async fn start_scanning(&mut self) {
+    println!("SCANNING STATE INITIATED...");
+    self.robot_manager.start_scanning().await;
+    self.sparkling_manager.run_sparkling().await;
   }
-  fn start_scanning(&self) {
-    println!("Started buffering...");
-    self.stop_buffering();
-    self.robot_manager.move_to_scanning_position();
-    self.sparkling_manager.run_sparkling();
-  }
-  fn start_syncing(&self) {
-    println!("Started syncing...");
-    self.stop_buffering();
-    self.robot_manager.move_to_syncing_position();
-    self.light_manager.regulate_light();
+  async fn start_syncing(&mut self) {
+    println!("SYNCING STATE INITIATED...");
+    self.robot_manager.start_syncing().await;
+    self.light_manager.regulate_light().await;
   }
 }
 
@@ -81,6 +71,6 @@ async fn main() {
     std::process::exit(1);
   }));
 
-  let composer = Composer::new();
-  composer.start();
+  let mut composer = Composer::new();
+  composer.start().await;
 }

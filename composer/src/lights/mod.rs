@@ -28,7 +28,7 @@ impl LightManager {
     light_manager.all_turn_off();
     return light_manager;
   }
-  pub fn regulate_light(&self){
+  pub async fn regulate_light(&self){
     // TODO
     self.light_a.regulate_light();
   }
