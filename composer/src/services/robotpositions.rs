@@ -1,4 +1,3 @@
-// use rand::Rng;
 use serde::Serialize;
 use std::{net::UdpSocket, process::Command, thread, time::Duration};
 
@@ -21,12 +20,10 @@ pub fn send() -> std::io::Result<()> {
     let json = serde_json::to_string(&data).unwrap();
     socket.send_to(json.as_bytes(), TARGET_ADDR)?;
 
-    println!("Sent: {}", json);
+    // println!("Sent: {}", json);
 
     thread::sleep(Duration::from_millis(400));
   }
-
-  // Ok(())
 }
 
 #[derive(Serialize)]
@@ -38,15 +35,6 @@ struct RobotPositions {
 }
 
 impl RobotPositions {
-  // fn random() -> Self {
-  //   let mut rng = rand::thread_rng();
-  //   RobotPositions {
-  //     r0: rng.gen_range(0.0..=1.0),
-  //     r1: rng.gen_range(0.0..=1.0),
-  //     r2: rng.gen_range(0.0..=1.0),
-  //     r3: rng.gen_range(0.0..=1.0),
-  //   }
-  // }
   fn from_script() -> Option<Self> {
     let output = Command::new("python3") // try "python3" instead of "python"
       .arg(PYTHON_SCRIPT_PATH)
@@ -63,7 +51,6 @@ impl RobotPositions {
     }
 
     let raw = String::from_utf8_lossy(&output.stdout);
-    // println!("Raw script output: {}", raw);
 
     let parts: Vec<&str> = raw.trim().split(';').collect();
     if parts.len() != 4 {

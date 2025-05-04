@@ -1,4 +1,6 @@
-use crate::utils::{self, print_dry_run, SerialDevice};
+use crate::utils::{
+  self, print_dry_run, MockSerialDevice, RealSerialDevice, SerialDevice,
+};
 use crate::DRY_RUN;
 
 const LIGHT_SERIAL_PORT_NAME: &'static str = "/dev/tty.usbmodem14101";
@@ -28,7 +30,7 @@ impl LightManager {
     light_manager.all_turn_off();
     return light_manager;
   }
-  pub async fn regulate_light(&self){
+  pub async fn regulate_light(&self) {
     // TODO
     self.light_a.regulate_light();
   }
@@ -57,24 +59,31 @@ impl LightManager {
 pub struct Light {
   pub id: u8,
   pub name: &'static str,
-  pub serial_device: SerialDevice,
+  pub serial_device: Box<dyn SerialDevice>,
 }
 
 impl Light {
   pub fn new(id: u8, name: &'static str) -> Self {
+    let serial_device: Box<dyn SerialDevice> = if DRY_RUN {
+      Box::new(
+        MockSerialDevice::new(LIGHT_SERIAL_PORT_NAME, LIGHT_SERIAL_BAUD)
+          .expect("Cannot initialize MockSerialDevice"),
+      )
+    } else {
+      Box::new(
+        RealSerialDevice::new(LIGHT_SERIAL_PORT_NAME, LIGHT_SERIAL_BAUD)
+          .expect("Cannot initialize RealSerialDevice"),
+      )
+    };
     let light: Light = Light {
       id,
       name,
-      serial_device: SerialDevice::new(
-        LIGHT_SERIAL_PORT_NAME,
-        LIGHT_SERIAL_BAUD,
-      )
-      .unwrap(),
+      serial_device,
     };
     light.print();
     return light;
   }
-  pub fn regulate_light(&self){
+  pub fn regulate_light(&self) {
     // TODO
   }
   pub fn turn_on(&mut self) {

@@ -1,4 +1,6 @@
-use crate::utils::{self, print_dry_run, SerialDevice};
+use crate::utils::{
+  self, print_dry_run, MockSerialDevice, RealSerialDevice, SerialDevice,
+};
 use crate::DRY_RUN;
 
 const SPARKLING_SERIAL_PORT_NAME: &'static str = "/dev/tty.usbmodem14101";
@@ -22,7 +24,7 @@ impl SparklingManager {
     sparkiling_manager.all_turn_off();
     return sparkiling_manager;
   }
-  pub async fn run_sparkling(&self){
+  pub async fn run_sparkling(&self) {
     // TODO
     self.sparkling_a.run_sparkling();
   }
@@ -45,24 +47,37 @@ impl SparklingManager {
 pub struct Sparkling {
   pub id: u8,
   pub name: &'static str,
-  pub serial_device: SerialDevice,
+  pub serial_device: Box<dyn SerialDevice>,
 }
 
 impl Sparkling {
   pub fn new(id: u8, name: &'static str) -> Self {
+    let serial_device: Box<dyn SerialDevice> = if DRY_RUN {
+      Box::new(
+        MockSerialDevice::new(
+          SPARKLING_SERIAL_PORT_NAME,
+          SPARKLING_SERIAL_BAUD,
+        )
+        .expect("Cannot initialize MockSerialDevice"),
+      )
+    } else {
+      Box::new(
+        RealSerialDevice::new(
+          SPARKLING_SERIAL_PORT_NAME,
+          SPARKLING_SERIAL_BAUD,
+        )
+        .expect("Cannot initialize RealSerialDevice"),
+      )
+    };
     let light: Sparkling = Sparkling {
       id,
       name,
-      serial_device: SerialDevice::new(
-        SPARKLING_SERIAL_PORT_NAME,
-        SPARKLING_SERIAL_BAUD,
-      )
-      .unwrap(),
+      serial_device,
     };
     light.print();
     return light;
   }
-  pub fn run_sparkling(&self){
+  pub fn run_sparkling(&self) {
     // TODO
   }
   pub fn turn_on(&mut self) {

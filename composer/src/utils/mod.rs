@@ -22,27 +22,53 @@ impl ScriptName {
   }
 }
 
-pub struct SerialDevice {
+pub trait SerialDevice {
+  fn send_message(&mut self, message: &str) -> anyhow::Result<()>;
+}
+
+pub struct RealSerialDevice {
   port: TTYPort,
 }
 
-impl SerialDevice {
+impl RealSerialDevice {
   pub fn new(port_name: &str, baud_rate: u32) -> anyhow::Result<Self> {
     let port = serialport::new(port_name, baud_rate)
       .timeout(Duration::from_secs(2))
       .open_native()?;
-    Ok(SerialDevice { port })
+    Ok(RealSerialDevice { port })
   }
+}
 
-  pub fn send_message(&mut self, message: &str) -> anyhow::Result<()> {
+impl SerialDevice for RealSerialDevice {
+  fn send_message(&mut self, message: &str) -> anyhow::Result<()> {
     let msg = format!("{}\n", message);
     self.port.write_all(msg.as_bytes())?;
     Ok(())
   }
 }
 
+pub struct MockSerialDevice {}
+
+impl MockSerialDevice {
+  pub fn new(port_name: &str, baud_rate: u32) -> anyhow::Result<Self> {
+    println!("Initialized MockSerialDevice {} {}", port_name, baud_rate);
+    Ok(MockSerialDevice {})
+  }
+}
+
+impl SerialDevice for MockSerialDevice {
+  fn send_message(&mut self, message: &str) -> anyhow::Result<()> {
+    println!("[MOCK] Message sent to serial port: {}", message);
+    Ok(())
+  }
+}
+
 pub fn sleep(ms: u64) {
   println!("Sleeping for {} milliseconds...", ms.to_string());
+  sleep_silent(ms);
+}
+
+pub fn sleep_silent(ms: u64) {
   thread::sleep(Duration::from_millis(ms));
 }
 
