@@ -3,11 +3,11 @@ use std::env;
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::Command;
-use std::thread;
+// use std::thread;
 use std::time::Duration;
 
 pub enum ScriptName {
-  RobotGetPosition,
+  // RobotGetPosition,
   RobotSetPosition,
   RobotInit,
 }
@@ -15,7 +15,7 @@ pub enum ScriptName {
 impl ScriptName {
   fn as_str(&self) -> &'static str {
     match self {
-      ScriptName::RobotGetPosition => "triennale-get-position",
+      // ScriptName::RobotGetPosition => "triennale-get-position",
       ScriptName::RobotSetPosition => "triennale-set-position",
       ScriptName::RobotInit => "triennale-init",
     }
@@ -63,14 +63,22 @@ impl SerialDevice for MockSerialDevice {
   }
 }
 
-pub fn sleep(ms: u64) {
-  println!("Sleeping for {} milliseconds...", ms.to_string());
-  sleep_silent(ms);
+// pub fn sleep(ms: u64) {
+//   println!("Sleeping for {} milliseconds...", ms.to_string());
+//   sleep_silent(ms);
+// }
+pub async fn sleep(milliseconds: u64) {
+  println!("Sleeping for {} milliseconds...", milliseconds.to_string());
+  tokio::time::sleep(std::time::Duration::from_millis(milliseconds)).await;
 }
 
-pub fn sleep_silent(ms: u64) {
-  thread::sleep(Duration::from_millis(ms));
+// pub fn sleep_silent(ms: u64) {
+//   thread::sleep(Duration::from_millis(ms));
+// }
+pub async fn sleep_silent(milliseconds: u64) {
+  tokio::time::sleep(std::time::Duration::from_millis(milliseconds)).await;
 }
+
 
 pub fn get_home_dir() -> PathBuf {
   if cfg!(target_os = "windows") {

@@ -16,7 +16,7 @@ pub struct LightManager {
 }
 
 impl LightManager {
-  pub fn new() -> Self {
+  pub async fn new() -> Self {
     let mut light_manager: LightManager = LightManager {
       light_a: Light::new(0, "A"),
       light_b: Light::new(1, "B"),
@@ -25,32 +25,54 @@ impl LightManager {
       light_e: Light::new(4, "E"),
       light_f: Light::new(5, "F"),
     };
-    light_manager.all_turn_on();
-    utils::sleep(5000);
-    light_manager.all_turn_off();
+    light_manager.all_turn_on().await;
+    utils::sleep(5000).await;
+    light_manager.all_turn_off().await;
     return light_manager;
   }
   pub async fn regulate_light(&self) {
+    // TODO remove
+    if crate::NARROW == true {
+      return;
+    }
     // TODO
     self.light_a.regulate_light();
   }
-  pub fn all_turn_on(&mut self) {
+  pub async fn all_turn_on(&mut self) {
+    // TODO remove
+    if crate::NARROW == true {
+      return;
+    }
     crate::log_enter!("lights.all_turn_on", "");
     self.light_a.turn_on();
+    utils::sleep(1000 * 2).await;
     self.light_b.turn_on();
+    utils::sleep(1000 * 2).await;
     self.light_c.turn_on();
+    utils::sleep(1000 * 2).await;
     self.light_d.turn_on();
+    utils::sleep(1000 * 2).await;
     self.light_e.turn_on();
+    utils::sleep(1000 * 2).await;
     self.light_f.turn_on();
     crate::log_exit!("lights.all_turn_on", "");
   }
-  pub fn all_turn_off(&mut self) {
+  pub async fn all_turn_off(&mut self) {
+    // TODO remove
+    if crate::NARROW == true {
+      return;
+    }
     crate::log_enter!("lights.all_turn_off", "");
     self.light_a.turn_off();
+    utils::sleep(1000 * 2).await;
     self.light_b.turn_off();
+    utils::sleep(1000 * 2).await;
     self.light_c.turn_off();
+    utils::sleep(1000 * 2).await;
     self.light_d.turn_off();
+    utils::sleep(1000 * 2).await;
     self.light_e.turn_off();
+    utils::sleep(1000 * 2).await;
     self.light_f.turn_off();
     crate::log_exit!("lights.all_turn_off", "");
   }
@@ -87,9 +109,14 @@ impl Light {
     // TODO
   }
   pub fn turn_on(&mut self) {
+    // TODO remove
+    if crate::NARROW == true {
+      return;
+    }
     crate::log_enter!("lights.turn_on", self.name);
     if DRY_RUN {
       print_dry_run(format!("LIGHT [{}] turned ON", self.name).as_str());
+      crate::log_exit!("lights.turn_on", self.name);
       return;
     }
     self
@@ -99,9 +126,14 @@ impl Light {
     crate::log_exit!("lights.turn_on", self.name);
   }
   pub fn turn_off(&mut self) {
+    // TODO remove
+    if crate::NARROW == true {
+      return;
+    }
     crate::log_enter!("lights.turn_off", self.name);
     if DRY_RUN {
       print_dry_run(format!("LIGHT [{}] turned OFF", self.name).as_str());
+      crate::log_exit!("lights.turn_off", self.name);
       return;
     }
     self
@@ -111,6 +143,6 @@ impl Light {
     crate::log_exit!("lights.turn_off", self.name);
   }
   fn print(&self) {
-    println!("{} {}", self.id, self.name);
+    println!("LIGHT {} {}", self.id, self.name);
   }
 }

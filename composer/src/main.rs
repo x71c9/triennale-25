@@ -1,53 +1,48 @@
-use std::collections::HashMap;
-use tokio::task::{self, JoinHandle};
+use tokio;
 
 mod lights;
 mod robots;
-mod services;
 mod sparklings;
 mod utils;
 
-pub const DEBUG: bool = false;
+pub const DEBUG: bool = true;
 pub const DRY_RUN: bool = true;
+pub const NARROW: bool = true;
 
 struct Composer {
   robot_manager: robots::RobotManager,
   light_manager: lights::LightManager,
   sparkling_manager: sparklings::SparklingManager,
-  tasks: HashMap<String, JoinHandle<()>>,
 }
 
 impl Composer {
-  fn new() -> Self {
-    let mut composer: Composer = Composer {
-      robot_manager: robots::RobotManager::new(),
-      light_manager: lights::LightManager::new(),
-      sparkling_manager: sparklings::SparklingManager::new(),
-      tasks: HashMap::new(),
+  async fn new() -> Self {
+    println!("Initializing composer...");
+    let composer: Composer = Composer {
+      robot_manager: robots::RobotManager::new().await,
+      light_manager: lights::LightManager::new().await,
+      sparkling_manager: sparklings::SparklingManager::new().await,
     };
-    composer.robot_manager.initialize_all();
-
-    let robotposition_service_task = task::spawn(async {
-      services::robotpositions::send()
-        .expect("[!] ERROR: Robotposition service failed");
-    });
-    composer.tasks.insert(
-      "robotpositions_service".to_string(),
-      robotposition_service_task,
-    );
+    println!("Composer initialized");
     return composer;
   }
   async fn start(&mut self) {
+    // TODO remove
+    // if crate::NARROW == true {
+    //   self.move_robot().await;
+    //   return;
+    // }
+    println!("Starting composer...");
     loop {
       self.start_buffering().await;
-
       self.start_scanning().await;
-
       self.start_buffering().await;
-
       self.start_syncing().await;
     }
   }
+  // async fn move_robot(&mut self){
+  //   self.robot_manager.robot_a.set_position(1.0, 1.0).await;
+  // }
   async fn start_buffering(&mut self) {
     println!("BUFFERING STATE INITIATED...");
     self.robot_manager.start_buffering().await;
@@ -71,6 +66,6 @@ async fn main() {
     std::process::exit(1);
   }));
 
-  let mut composer = Composer::new();
+  let mut composer = Composer::new().await;
   composer.start().await;
 }
