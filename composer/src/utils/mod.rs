@@ -67,8 +67,8 @@ impl SerialDevice for MockSerialDevice {
 //   println!("Sleeping for {} milliseconds...", ms.to_string());
 //   sleep_silent(ms);
 // }
-pub async fn sleep(milliseconds: u64) {
-  println!("Sleeping for {} milliseconds...", milliseconds.to_string());
+pub async fn sleep(milliseconds: u64, name: &str) {
+  println!("[{}] Sleeping for {} milliseconds...", name, milliseconds.to_string());
   tokio::time::sleep(std::time::Duration::from_millis(milliseconds)).await;
 }
 

@@ -26,7 +26,7 @@ impl LightManager {
       light_f: Light::new(5, "F"),
     };
     light_manager.all_turn_on().await;
-    utils::sleep(5000).await;
+    utils::sleep(5000, "LightManager new").await;
     light_manager.all_turn_off().await;
     return light_manager;
   }
@@ -45,15 +45,15 @@ impl LightManager {
     }
     crate::log_enter!("lights.all_turn_on", "");
     self.light_a.turn_on();
-    utils::sleep(1000 * 2).await;
+    utils::sleep(1000 * 2, "LightManager all_turn_on").await;
     self.light_b.turn_on();
-    utils::sleep(1000 * 2).await;
+    utils::sleep(1000 * 2, "LightManager all_turn_on").await;
     self.light_c.turn_on();
-    utils::sleep(1000 * 2).await;
+    utils::sleep(1000 * 2, "LightManager all_turn_on").await;
     self.light_d.turn_on();
-    utils::sleep(1000 * 2).await;
+    utils::sleep(1000 * 2, "LightManager all_turn_on").await;
     self.light_e.turn_on();
-    utils::sleep(1000 * 2).await;
+    utils::sleep(1000 * 2, "LightManager all_turn_on").await;
     self.light_f.turn_on();
     crate::log_exit!("lights.all_turn_on", "");
   }
@@ -64,15 +64,15 @@ impl LightManager {
     }
     crate::log_enter!("lights.all_turn_off", "");
     self.light_a.turn_off();
-    utils::sleep(1000 * 2).await;
+    utils::sleep(1000 * 2, "LightManager all_turn_off").await;
     self.light_b.turn_off();
-    utils::sleep(1000 * 2).await;
+    utils::sleep(1000 * 2, "LightManager all_turn_off").await;
     self.light_c.turn_off();
-    utils::sleep(1000 * 2).await;
+    utils::sleep(1000 * 2, "LightManager all_turn_off").await;
     self.light_d.turn_off();
-    utils::sleep(1000 * 2).await;
+    utils::sleep(1000 * 2, "LightManager all_turn_off").await;
     self.light_e.turn_off();
-    utils::sleep(1000 * 2).await;
+    utils::sleep(1000 * 2, "LightManager all_turn_off").await;
     self.light_f.turn_off();
     crate::log_exit!("lights.all_turn_off", "");
   }

@@ -204,13 +204,13 @@ impl Robot {
     crate::log_enter!("Robot init", &self.id);
     if DRY_RUN {
       utils::print_dry_run("Invoked robot init script");
-      utils::sleep(self.init_time).await;
+      utils::sleep(self.init_time, "Robot init").await;
       self.print();
       crate::log_exit!("Robot init", &self.id);
       return;
     }
     utils::invoke_script(&utils::ScriptName::RobotInit, &[&self.name]);
-    utils::sleep(self.init_time).await;
+    utils::sleep(self.init_time, "Robot init").await;
     crate::log_exit!("Robot init", &self.id);
   }
 
@@ -234,7 +234,7 @@ impl Robot {
         break;
       }
       let delay = get_buffering_delay();
-      utils::sleep(delay).await;
+      utils::sleep(delay, "Robot start_buffering").await;
       let random_position = random_normal_value();
       let random_speed = random_normal_value();
       self.set_position(random_position, random_speed).await;
@@ -250,10 +250,10 @@ impl Robot {
       let mut state = self.state.write().await;
       *state = RobotState::Scanning;
     }
-    utils::sleep(delay).await;
+    utils::sleep(delay, "Robot start_scanning").await;
     let random_speed = random_normal_value();
     self.set_position(SCANNING_POSITION, random_speed).await;
-    utils::sleep(SCANNING_TIME_MS).await;
+    utils::sleep(SCANNING_TIME_MS, "Robot start_scanning SCANNING_TIME").await;
     crate::log_exit!("Robot start_scanning", self.id);
   }
 
@@ -264,10 +264,10 @@ impl Robot {
       let mut state = self.state.write().await;
       *state = RobotState::Syncing;
     }
-    utils::sleep(delay).await;
+    utils::sleep(delay, "Robot start_syncing").await;
     let random_speed = random_normal_value();
     self.set_position(SYNCING_POSITION, random_speed).await;
-    utils::sleep(SYNCING_TIME_MS).await;
+    utils::sleep(SYNCING_TIME_MS, "Robot start_syncing SYNCYING_TIME").await;
     crate::log_exit!("Robot start_syncing", self.id);
   }
 

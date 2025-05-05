@@ -18,7 +18,7 @@ impl SparklingManager {
       sparkling_c: Sparkling::new(2, "C", "s2"),
     };
     sparkiling_manager.all_turn_on().await;
-    utils::sleep(5000).await;
+    utils::sleep(5000, "SparklingManager new").await;
     sparkiling_manager.all_turn_off().await;
     return sparkiling_manager;
   }
@@ -28,9 +28,9 @@ impl SparklingManager {
     //   return;
     // }
     self.sparkling_a.run_sparkling().await;
-    utils::sleep(1000).await;
+    utils::sleep(1000, "SparklingManager run_sparkling").await;
     self.sparkling_b.run_sparkling().await;
-    utils::sleep(1000).await;
+    utils::sleep(1000, "SparklingManager run_sparkling").await;
     self.sparkling_c.run_sparkling().await;
   }
   pub async fn all_turn_on(&mut self) {
@@ -40,9 +40,9 @@ impl SparklingManager {
     // }
     crate::log_enter!("sparkling.all_turn_on", "");
     self.sparkling_a.turn_on();
-    utils::sleep(2000).await;
+    utils::sleep(2000, "SparklingManager all_turn_on").await;
     self.sparkling_b.turn_on();
-    utils::sleep(2000).await;
+    utils::sleep(2000, "SparklingManager all_turn_on").await;
     self.sparkling_c.turn_on();
     crate::log_exit!("sparkling.all_turn_on", "");
   }
@@ -53,9 +53,9 @@ impl SparklingManager {
     // }
     crate::log_enter!("sparkling.all_turn_off", "");
     self.sparkling_a.turn_off();
-    utils::sleep(2000).await;
+    utils::sleep(2000, "SparklingManager all_turn_off").await;
     self.sparkling_b.turn_off();
-    utils::sleep(2000).await;
+    utils::sleep(2000, "SparklingManager all_turn_off").await;
     self.sparkling_c.turn_off();
     crate::log_exit!("sparkling.all_turn_off", "");
   }
@@ -83,7 +83,7 @@ impl Sparkling {
     //   return;
     // }
     self.turn_on();
-    utils::sleep(1000 * 10).await;
+    utils::sleep(1000 * 10, "Sparkling run_sparkling").await;
     self.turn_off();
   }
   pub fn turn_on(&self) {
