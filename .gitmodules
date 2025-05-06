@@ -1,0 +1,5 @@
+[submodule "robotics"]
+	path = robotics
+	url = git@github.com:x71c9/triennale-25-robotics
+	branch = main
+	update = rebase
