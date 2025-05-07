@@ -1,31 +1,36 @@
-const int pin5 = 5;
-const int pin6 = 6;
+#include "DFRobot_GP8403.h"
+#include <Wire.h>
 
-float analogValue = 0.0;
-const float step = 0.2;
-const unsigned long interval = 10000; // 10 seconds in milliseconds
-unsigned long lastUpdate = 0;
+DFRobot_GP8403 dac1(&Wire, 0x58);  // First DAC at address 0x58
+DFRobot_GP8403 dac2(&Wire, 0x5F);  // Second DAC at address 0x5F
 
 void setup() {
-  pinMode(pin5, OUTPUT);
-  pinMode(pin6, OUTPUT);
+  Serial.begin(115200);
+
+  while (dac1.begin() != 0) {
+    Serial.println("DAC1 (0x58) init error");
+    delay(1000);
+  }
+  Serial.println("DAC1 (0x58) init OK");
+
+  while (dac2.begin() != 0) {
+    Serial.println("DAC2 (0x5F) init error");
+    delay(1000);
+  }
+  Serial.println("DAC2 (0x5F) init OK");
+
+  dac1.setDACOutRange(dac1.eOutputRange10V);
+  dac2.setDACOutRange(dac2.eOutputRange10V);
+
+  // Set voltages on DAC1 (0x58)
+  dac1.setDACOutVoltage(10000, 0);  // 10V on channel 0
+  dac1.setDACOutVoltage(7500, 1);   // 7.5V on channel 1
+
+  // Set voltages on DAC2 (0x5F)
+  dac2.setDACOutVoltage(9000, 0);   // 9V on channel 0
+  dac2.setDACOutVoltage(2000, 1);   // 2V on channel 1
 }
 
 void loop() {
-  unsigned long currentMillis = millis();
-
-  if (currentMillis - lastUpdate >= interval) {
-    lastUpdate = currentMillis;
-
-    // Map value (0.0 to 1.0) to PWM range (0 to 255)
-    int pwmValue = int(analogValue * 255);
-    analogWrite(pin5, pwmValue);
-    analogWrite(pin6, pwmValue);
-
-    // Increment analogValue
-    analogValue += step;
-    if (analogValue > 1.0) {
-      analogValue = 0.0; // Reset after reaching 1
-    }
-  }
+  // Nothing needed here
 }
