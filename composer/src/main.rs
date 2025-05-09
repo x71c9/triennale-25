@@ -71,12 +71,12 @@ async fn handle_lights(args: &[String]) {
   let id = &args[3];
 
   match state.as_str() {
-    "ON" => {
+    "on" => {
       println!("Turning light {} for ID: {}", state, id);
       let mut light = lights::create(id);
       light.turn_on();
     },
-    "OFF" => {
+    "off" => {
       println!("Turning light {} for ID: {}", state, id);
       let mut light = lights::create(id);
       light.turn_off();
@@ -95,12 +95,12 @@ async fn handle_sparklings(args: &[String]) {
   let id = &args[3];
 
   match state.as_str() {
-    "ON" => {
+    "on" => {
       println!("Turning sparkling {} for ID: {}", state, id);
       let sparkling = sparklings::create(id);
       sparkling.turn_on();
     },
-    "OFF" => {
+    "off" => {
       println!("Turning sparkling {} for ID: {}", state, id);
       let sparkling = sparklings::create(id);
       sparkling.turn_off();
