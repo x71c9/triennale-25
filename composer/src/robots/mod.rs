@@ -200,7 +200,7 @@ impl Robot {
     return robot;
   }
 
-  async fn init(&self) {
+  pub async fn init(&self) {
     crate::log_enter!("Robot init", &self.id);
     if DRY_RUN {
       utils::print_dry_run("Invoked robot init script");
@@ -214,7 +214,7 @@ impl Robot {
     crate::log_exit!("Robot init", &self.id);
   }
 
-  async fn start_buffering(self: &Arc<Self>) {
+  pub async fn start_buffering(self: &Arc<Self>) {
     // TODO remove
     if self.id > 0 {
       return;
@@ -238,12 +238,11 @@ impl Robot {
       let random_position = random_normal_value();
       let random_speed = random_normal_value();
       self.set_position(random_position, random_speed).await;
-
     }
     crate::log_exit!("Robot start_buffering", self.id);
   }
 
-  async fn start_scanning(self: &Arc<Self>, delay: u64) {
+  pub async fn start_scanning(self: &Arc<Self>, delay: u64) {
     crate::log_enter!("Robot start_scanning", self.id);
     // self.stop().await;
     {
@@ -257,7 +256,7 @@ impl Robot {
     crate::log_exit!("Robot start_scanning", self.id);
   }
 
-  async fn start_syncing(self: &Arc<Self>, delay: u64) {
+  pub async fn start_syncing(self: &Arc<Self>, delay: u64) {
     crate::log_enter!("Robot start_syncing", self.id);
     // self.stop().await;
     {
@@ -454,4 +453,16 @@ fn get_syncing_delay() -> u64 {
     SYNCING_MAX_DELAY_MS / 1000,
   ) * 1000;
   return delay;
+}
+
+pub fn create(id: &str) -> Arc<Robot> {
+  match id {
+    "1" => Arc::new(Robot::new(2, "B", ROBOT_B_INIT_TIME_MS, ROBOT_B_CONSTANT_TIME_MS)),
+    "2" => Arc::new(Robot::new(3, "C", ROBOT_C_INIT_TIME_MS, ROBOT_C_CONSTANT_TIME_MS)),
+    "3" => Arc::new(Robot::new(1, "A", ROBOT_A_INIT_TIME_MS, ROBOT_A_CONSTANT_TIME_MS)),
+    "4" => Arc::new(Robot::new(4, "D", ROBOT_D_INIT_TIME_MS, ROBOT_D_CONSTANT_TIME_MS)),
+    _ => {
+      panic!("Invalid Robot ID. Possible value [1-4]");
+    }
+  }
 }

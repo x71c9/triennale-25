@@ -68,7 +68,11 @@ impl SerialDevice for MockSerialDevice {
 //   sleep_silent(ms);
 // }
 pub async fn sleep(milliseconds: u64, name: &str) {
-  println!("[{}] Sleeping for {} milliseconds...", name, milliseconds.to_string());
+  println!(
+    "[{}] Sleeping for {} milliseconds...",
+    name,
+    milliseconds.to_string()
+  );
   tokio::time::sleep(std::time::Duration::from_millis(milliseconds)).await;
 }
 
@@ -78,7 +82,6 @@ pub async fn sleep(milliseconds: u64, name: &str) {
 pub async fn sleep_silent(milliseconds: u64) {
   tokio::time::sleep(std::time::Duration::from_millis(milliseconds)).await;
 }
-
 
 pub fn get_home_dir() -> PathBuf {
   if cfg!(target_os = "windows") {

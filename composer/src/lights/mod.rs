@@ -146,3 +146,17 @@ impl Light {
     println!("LIGHT {} {}", self.id, self.name);
   }
 }
+
+pub fn create(id: &str) -> Light {
+  match id {
+    "1" => Light::new(0, "A"),
+    "2" => Light::new(1, "B"),
+    "3" => Light::new(2, "C"),
+    "4" => Light::new(3, "D"),
+    "5" => Light::new(4, "E"),
+    "6" => Light::new(5, "F"),
+    _ => {
+      panic!("Invalid Light ID. Possible value [1-6]");
+    }
+  }
+}

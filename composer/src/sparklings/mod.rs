@@ -131,3 +131,14 @@ fn invoke_service(path: &str, state: &str) {
     response.text().expect("Failed to read response body")
   );
 }
+
+pub fn create(id: &str) -> Sparkling {
+  match id {
+    "1" => Sparkling::new(0, "A", "s0"),
+    "2" => Sparkling::new(1, "B", "s1"),
+    "3" => Sparkling::new(2, "C", "s2"),
+    _ => {
+      panic!("Invalid Light ID. Possible value [1-3]");
+    }
+  }
+}
