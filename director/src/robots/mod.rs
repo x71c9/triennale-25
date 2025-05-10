@@ -277,14 +277,15 @@ impl Robot {
         &[self.name, &pos.to_string(), &speed.to_string()],
       );
     }
+    let mapped_position = map_position(pos);
     let time = resolve_time_ms(
       &current_position,
-      &pos,
+      &mapped_position,
       &speed,
       &(self.speed_constant as f64),
     );
     println!("Resolved time {}", time);
-    let delta = pos - current_position;
+    let delta = mapped_position - current_position;
     println!("Resolved delta {}", delta);
     let steps = ((time / POSITION_INTERVAL_MS) as f64).ceil() as usize;
     println!("Resolved steps {}", steps);
@@ -298,10 +299,10 @@ impl Robot {
       utils::sleep_silent(POSITION_INTERVAL_MS).await;
     }
     let mut p = self.position.write().await;
-    *p = pos;
+    *p = mapped_position;
     let after_position = *self.position.read().await;
     println!("Current position is {}", after_position);
-    crate::log_exit!("Robot set_position", pos);
+    crate::log_exit!("Robot set_position", mapped_position);
   }
 
   pub async fn get_position(&self) -> f64 {
@@ -475,3 +476,7 @@ fn get_syncing_delay() -> u64 {
 //     }
 //   }
 // }
+
+fn map_position(value: f64) -> f64 {
+  (value / 5.0).clamp(0.0, 1.0)
+}
