@@ -6,7 +6,7 @@ use std::process::Command;
 use std::time::Duration;
 
 pub enum ScriptName {
-  // RobotGetPosition,
+  RobotGetPosition,
   RobotSetPosition,
   RobotInit,
 }
@@ -14,7 +14,7 @@ pub enum ScriptName {
 impl ScriptName {
   fn as_str(&self) -> &'static str {
     match self {
-      // ScriptName::RobotGetPosition => "triennale-get-position",
+      ScriptName::RobotGetPosition => "triennale-get-position",
       ScriptName::RobotSetPosition => "triennale-set-position",
       ScriptName::RobotInit => "triennale-init",
     }

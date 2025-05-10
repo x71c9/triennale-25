@@ -7,8 +7,8 @@ use tokio::sync::RwLock;
 
 use tokio;
 
-use crate::utils;
 use crate::config::{self, ConfigParam};
+use crate::utils;
 
 // const SERVICE_ADDRESS: &'static str = "127.0.0.1:5000";
 const SERVICE_ADDRESS: &'static str = "255.255.255.255:6666";
@@ -265,7 +265,8 @@ impl Robot {
 
   pub async fn set_position(self: &Arc<Self>, pos: f64, speed: f64) {
     crate::log_enter!("Robot set_position", pos);
-    let current_position = *self.position.read().await;
+    // let current_position = *self.position.read().await;
+    let current_position = self.get_real_position().await;
     println!("Current position is {}", current_position);
     if config::get(ConfigParam::DRYRUN) {
       utils::print_dry_run(
@@ -304,6 +305,27 @@ impl Robot {
     let after_position = *self.position.read().await;
     println!("Current position is {}", after_position);
     crate::log_exit!("Robot set_position", mapped_position);
+  }
+
+  pub async fn get_real_position(&self) -> f64 {
+    crate::log_enter!("Robot get_real_position", "");
+    let pos = if config::get(ConfigParam::DRYRUN) {
+      utils::print_dry_run(
+        format!("Invoked robot get position script").as_str(),
+      );
+      *self.position.read().await
+    } else {
+      let response = utils::invoke_script(
+        &utils::ScriptName::RobotGetPosition,
+        &[self.name],
+      );
+      let number_value: f64 = response.unwrap().parse().unwrap();
+      number_value
+    };
+    let mapped_position = map_position(pos);
+    println!("Current position mapped is {}", mapped_position);
+    crate::log_exit!("Robot get_real_position", mapped_position);
+    return mapped_position;
   }
 
   // pub async fn get_position(&self) -> f64 {
@@ -392,7 +414,9 @@ async fn start_service(
 ) {
   println!("Starting Robot Service...");
   let socket = UdpSocket::bind("0.0.0.0:0").expect("could not bind socket");
-  socket.set_broadcast(true).expect("could not enable broadcast");
+  socket
+    .set_broadcast(true)
+    .expect("could not enable broadcast");
 
   loop {
     let positions = vec![
