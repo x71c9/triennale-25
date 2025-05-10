@@ -3,12 +3,12 @@ use std::net::UdpSocket;
 
 fn main() -> std::io::Result<()> {
   // Bind to port 5000 on all interfaces
-  let socket = UdpSocket::bind("0.0.0.0:5000")?;
+  let socket = UdpSocket::bind("0.0.0.0:6666")?;
 
   // Allow receiving broadcast messages
   socket.set_broadcast(true)?;
 
-  println!("Listening for OSC messages on port 5000...");
+  println!("Listening for OSC messages on port 6666...");
 
   let mut buf = [0u8; 1024];
 
