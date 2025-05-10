@@ -220,7 +220,7 @@ impl Robot {
       }
       let delay = get_buffering_delay();
       utils::sleep(delay, "Robot start_buffering").await;
-      let random_position = random_normal_value();
+      let random_position = random_normal_value() * 5.0;
       let random_speed = random_normal_value();
       self.set_position(random_position, random_speed).await;
     }
