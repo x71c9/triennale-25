@@ -148,8 +148,8 @@ pub async fn create(id: &str) -> Light {
     "2" => Light::new(1, "D", 2).await,
     "3" => Light::new(2, "B", 3).await,
     "4" => Light::new(3, "E", 4).await,
-    "5" => Light::new(4, "A", 5).await,
-    "6" => Light::new(5, "F", 6).await,
+    "5" => Light::new(4, "A", 6).await, // inverted
+    "6" => Light::new(5, "F", 5).await, // inverted
     _ => {
       panic!("Invalid Light ID. Possible value [1-6]");
     }
