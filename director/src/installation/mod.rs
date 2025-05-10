@@ -1,24 +1,24 @@
 use crate::{lights, robots, sparklings};
 
-struct Composer {
+struct Director {
   robot_manager: robots::RobotManager,
   light_manager: lights::LightManager,
   sparkling_manager: sparklings::SparklingManager,
 }
 
-impl Composer {
+impl Director {
   async fn new() -> Self {
-    println!("Initializing composer...");
-    let composer: Composer = Composer {
+    println!("Initializing director...");
+    let director: Director = Director {
       robot_manager: robots::RobotManager::new().await,
       light_manager: lights::LightManager::new().await,
       sparkling_manager: sparklings::SparklingManager::new().await,
     };
-    println!("Composer initialized");
-    return composer;
+    println!("Director initialized");
+    return director;
   }
   async fn start(&mut self) {
-    println!("Starting composer...");
+    println!("Starting director...");
     loop {
       self.start_buffering().await;
       self.start_scanning().await;
@@ -51,6 +51,6 @@ pub async fn start() {
     std::process::exit(1);
   }));
 
-  let mut composer = Composer::new().await;
-  composer.start().await;
+  let mut director = Director::new().await;
+  director.start().await;
 }

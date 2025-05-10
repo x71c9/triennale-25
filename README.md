@@ -3,7 +3,7 @@
 ```bash
 nix-shell
 
-cd composer/
+cd director/
 
 cargo run lights <ID> <on/off>
 

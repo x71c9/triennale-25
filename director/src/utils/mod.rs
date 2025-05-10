@@ -97,7 +97,7 @@ pub fn get_home_dir() -> PathBuf {
 
 pub fn get_scripts_dir() -> PathBuf {
   let home_dir = get_home_dir();
-  let path_from_string = PathBuf::from("repos/triennale-25/composer/scripts");
+  let path_from_string = PathBuf::from("repos/triennale-25/director/scripts");
   let script_dir = home_dir.join(&path_from_string);
   return script_dir;
 }

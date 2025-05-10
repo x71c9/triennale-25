@@ -1,12 +1,12 @@
 [Unit]
-Description=Run Triennale Composer
+Description=Run Triennale Director
 After=network-online.target
 Wants=network-online.target
 Requires=dev-ttyUSB0.device
 After=dev-ttyUSB0.device
 
 [Service]
-ExecStart=/home/dafne/triennale-25/systemd/run-composer.sh
+ExecStart=/home/dafne/triennale-25/systemd/run-director.sh
 Restart=on-failure
 Environment=PATH=/nix/var/nix/profiles/default/bin:/home/dafne/.nix-profile/bin:/run/current-system/sw/bin:/usr/bin:/bin
 
