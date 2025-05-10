@@ -319,7 +319,7 @@ impl Robot {
         &utils::ScriptName::RobotGetPosition,
         &[self.name],
       );
-      let number_value: f64 = response.unwrap().parse().unwrap();
+      let number_value: f64 = response.unwrap().parse().expect("Cannot parse real pos");
       number_value
     };
     let mapped_position = map_position(pos);
