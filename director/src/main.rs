@@ -128,7 +128,7 @@ async fn handle_lights(args: &[String]) {
     }
     "off" => {
       println!("Turning light {} for ID: {}", state, id);
-      let mut light = lights::reate(id).await;
+      let mut light = lights::create(id).await;
       light.turn_off();
     }
     _ => eprintln!("Invalid state for light: {}", state),
