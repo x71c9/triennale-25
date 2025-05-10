@@ -19,12 +19,12 @@ pub struct LightManager {
 impl LightManager {
   pub async fn new() -> Self {
     let mut light_manager: LightManager = LightManager {
-      light_a: Light::new(0, "A", 5),
-      light_b: Light::new(1, "B", 3),
-      light_c: Light::new(2, "C", 1),
-      light_d: Light::new(3, "D", 2),
-      light_e: Light::new(4, "E", 4),
-      light_f: Light::new(5, "F", 6),
+      light_a: Light::new(0, "A", 5).await,
+      light_b: Light::new(1, "B", 3).await,
+      light_c: Light::new(2, "C", 1).await,
+      light_d: Light::new(3, "D", 2).await,
+      light_e: Light::new(4, "E", 4).await,
+      light_f: Light::new(5, "F", 6).await,
     };
     light_manager.all_turn_on().await;
     utils::sleep(5000, "LightManager new").await;
@@ -74,7 +74,7 @@ pub struct Light {
 }
 
 impl Light {
-  pub fn new(id: u8, name: &'static str, serial_channel: u8) -> Self {
+  pub async fn new(id: u8, name: &'static str, serial_channel: u8) -> Self {
     let serial_device: Box<dyn SerialDevice> = if config::get(ConfigParam::DRYRUN) {
       Box::new(
         MockSerialDevice::new(LIGHT_SERIAL_PORT_NAME, LIGHT_SERIAL_BAUD)
@@ -82,7 +82,7 @@ impl Light {
       )
     } else {
       Box::new(
-        RealSerialDevice::new(LIGHT_SERIAL_PORT_NAME, LIGHT_SERIAL_BAUD)
+        RealSerialDevice::new(LIGHT_SERIAL_PORT_NAME, LIGHT_SERIAL_BAUD).await
           .expect("Cannot initialize RealSerialDevice"),
       )
     };
@@ -142,14 +142,14 @@ impl Light {
   }
 }
 
-pub fn create(id: &str) -> Light {
+pub async fn create(id: &str) -> Light {
   match id {
-    "1" => Light::new(0, "A", 5),
-    "2" => Light::new(1, "B", 3),
-    "3" => Light::new(2, "C", 1),
-    "4" => Light::new(3, "D", 2),
-    "5" => Light::new(4, "E", 4),
-    "6" => Light::new(5, "F", 6),
+    "1" => Light::new(0, "A", 5).await,
+    "2" => Light::new(1, "B", 3).await,
+    "3" => Light::new(2, "C", 1).await,
+    "4" => Light::new(3, "D", 2).await,
+    "5" => Light::new(4, "E", 4).await,
+    "6" => Light::new(5, "F", 6).await,
     _ => {
       panic!("Invalid Light ID. Possible value [1-6]");
     }

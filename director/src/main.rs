@@ -123,12 +123,12 @@ async fn handle_lights(args: &[String]) {
   match state.as_str() {
     "on" => {
       println!("Turning light {} for ID: {}", state, id);
-      let mut light = lights::create(id);
+      let mut light = lights::create(id).await;
       light.turn_on();
     }
     "off" => {
       println!("Turning light {} for ID: {}", state, id);
-      let mut light = lights::create(id);
+      let mut light = lights::create(id).await;
       light.turn_off();
     }
     _ => eprintln!("Invalid state for light: {}", state),

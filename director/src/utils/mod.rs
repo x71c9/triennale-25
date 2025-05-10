@@ -32,10 +32,11 @@ pub struct RealSerialDevice {
 }
 
 impl RealSerialDevice {
-  pub fn new(port_name: &'static str, baud_rate: u32) -> anyhow::Result<Self> {
+  pub async fn new(port_name: &'static str, baud_rate: u32) -> anyhow::Result<Self> {
     let port = serialport::new(port_name, baud_rate)
       .timeout(Duration::from_secs(2))
       .open_native()?;
+    sleep(2000, "Real serial device new").await;
     Ok(RealSerialDevice {
       port,
       port_name,
