@@ -279,8 +279,9 @@ impl Robot {
       );
     }
     let mapped_position = map_position(pos);
+    let current_mapped_position = map_position(current_position);
     let time = resolve_time_ms(
-      &current_position,
+      &current_mapped_position,
       &mapped_position,
       &speed,
       &(self.speed_constant as f64),
