@@ -25,6 +25,8 @@ ssh "${REMOTE_USER}@${REMOTE_HOST}" bash << EOF
   cd "$REMOTE_PATH"
   git pull --recurse-submodules
   git submodule update --init --recursive
+  cd "$REMOTE_PATH/robotics"
+  git checkout main
 
   echo "Updating systemd service definition..."
   sudo cp "$REMOTE_PATH/$SERVICE_FILE" "$SYSTEMD_DEST"
