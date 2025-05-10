@@ -27,20 +27,32 @@ pub trait SerialDevice {
 
 pub struct RealSerialDevice {
   port: TTYPort,
+  port_name: &'static str,
+  baud_rate: u32,
 }
 
 impl RealSerialDevice {
-  pub fn new(port_name: &str, baud_rate: u32) -> anyhow::Result<Self> {
+  pub fn new(port_name: &'static str, baud_rate: u32) -> anyhow::Result<Self> {
     let port = serialport::new(port_name, baud_rate)
       .timeout(Duration::from_secs(2))
       .open_native()?;
-    Ok(RealSerialDevice { port })
+    Ok(RealSerialDevice {
+      port,
+      port_name,
+      baud_rate,
+    })
   }
 }
 
 impl SerialDevice for RealSerialDevice {
   fn send_message(&mut self, message: &str) -> anyhow::Result<()> {
     let msg = format!("{}\n", message);
+    println!(
+      "Sending message {} to serial [{}] with baud rate {}...",
+      msg,
+      self.port_name,
+      self.baud_rate.to_string()
+    );
     self.port.write_all(msg.as_bytes())?;
     Ok(())
   }
