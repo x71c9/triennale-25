@@ -22,7 +22,9 @@ echo "Connecting to $REMOTE_USER@$REMOTE_HOST..."
 ssh "${REMOTE_USER}@${REMOTE_HOST}" bash << EOF
   set -e
   echo "Pulling latest changes in $REMOTE_PATH..."
-  cd "$REMOTE_PATH" && git pull
+  cd "$REMOTE_PATH"
+  git pull --recurse-submodules
+  git submodule update --init --recursive
 
   echo "Updating systemd service definition..."
   sudo cp "$REMOTE_PATH/$SERVICE_FILE" "$SYSTEMD_DEST"
