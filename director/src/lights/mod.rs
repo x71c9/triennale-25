@@ -3,8 +3,9 @@ use crate::utils::{
 };
 use crate::config::{self, ConfigParam};
 
-const LIGHT_SERIAL_PORT_NAME: &'static str = "/dev/tty.usbmodem14101";
-const LIGHT_SERIAL_BAUD: u32 = 9600;
+// const LIGHT_SERIAL_PORT_NAME: &'static str = "/dev/tty.usbmodem14101";
+const LIGHT_SERIAL_PORT_NAME: &'static str = "/dev/ttyACM0";
+const LIGHT_SERIAL_BAUD: u32 = 115200;
 
 pub struct LightManager {
   pub light_a: Light,
@@ -18,20 +19,20 @@ pub struct LightManager {
 impl LightManager {
   pub async fn new() -> Self {
     let mut light_manager: LightManager = LightManager {
-      light_a: Light::new(0, "A"),
-      light_b: Light::new(1, "B"),
-      light_c: Light::new(2, "C"),
-      light_d: Light::new(3, "D"),
-      light_e: Light::new(4, "E"),
-      light_f: Light::new(5, "F"),
+      light_a: Light::new(0, "A", 5),
+      light_b: Light::new(1, "B", 3),
+      light_c: Light::new(2, "C", 1),
+      light_d: Light::new(3, "D", 2),
+      light_e: Light::new(4, "E", 4),
+      light_f: Light::new(5, "F", 6),
     };
     light_manager.all_turn_on().await;
     utils::sleep(5000, "LightManager new").await;
     light_manager.all_turn_off().await;
     return light_manager;
   }
-  pub async fn regulate_light(&self) {
-    self.light_a.regulate_light();
+  pub async fn regulate_light(&mut self) {
+    self.light_a.dim(5000);
   }
   pub async fn all_turn_on(&mut self) {
     crate::log_enter!("lights.all_turn_on", "");
@@ -69,10 +70,11 @@ pub struct Light {
   pub id: u8,
   pub name: &'static str,
   pub serial_device: Box<dyn SerialDevice>,
+  pub serial_channel: u8,
 }
 
 impl Light {
-  pub fn new(id: u8, name: &'static str) -> Self {
+  pub fn new(id: u8, name: &'static str, serial_channel: u8) -> Self {
     let serial_device: Box<dyn SerialDevice> = if config::get(ConfigParam::DRYRUN) {
       Box::new(
         MockSerialDevice::new(LIGHT_SERIAL_PORT_NAME, LIGHT_SERIAL_BAUD)
@@ -88,12 +90,24 @@ impl Light {
       id,
       name,
       serial_device,
+      serial_channel,
     };
     light.print();
     return light;
   }
-  pub fn regulate_light(&self) {
-    // TODO
+  pub fn dim(&mut self, value: u16) {
+    crate::log_enter!("lights.dim", self.name);
+    if config::get(ConfigParam::DRYRUN) {
+      print_dry_run(format!("LIGHT [{}] dimmed {}", self.name, value).as_str());
+      crate::log_exit!("lights.turn_off", self.name);
+      return;
+    }
+    let message = format!("DIM {} {}", self.serial_channel.to_string(), value.to_string());
+    self
+      .serial_device
+      .send_message(message.as_str())
+      .expect("failed to send on message dim");
+    crate::log_exit!("lights.dim", self.name);
   }
   pub fn turn_on(&mut self) {
     crate::log_enter!("lights.turn_on", self.name);
@@ -102,9 +116,10 @@ impl Light {
       crate::log_exit!("lights.turn_on", self.name);
       return;
     }
+    let message = format!("DIM {} 10000", self.serial_channel.to_string());
     self
       .serial_device
-      .send_message("on")
+      .send_message(message.as_str())
       .expect("failed to send on message on");
     crate::log_exit!("lights.turn_on", self.name);
   }
@@ -115,9 +130,10 @@ impl Light {
       crate::log_exit!("lights.turn_off", self.name);
       return;
     }
+    let message = format!("DIM {} 0", self.serial_channel.to_string());
     self
       .serial_device
-      .send_message("off")
+      .send_message(message.as_str())
       .expect("failed to send on message off");
     crate::log_exit!("lights.turn_off", self.name);
   }
@@ -128,12 +144,12 @@ impl Light {
 
 pub fn create(id: &str) -> Light {
   match id {
-    "1" => Light::new(0, "A"),
-    "2" => Light::new(1, "B"),
-    "3" => Light::new(2, "C"),
-    "4" => Light::new(3, "D"),
-    "5" => Light::new(4, "E"),
-    "6" => Light::new(5, "F"),
+    "1" => Light::new(0, "A", 5),
+    "2" => Light::new(1, "B", 3),
+    "3" => Light::new(2, "C", 1),
+    "4" => Light::new(3, "D", 2),
+    "5" => Light::new(4, "E", 4),
+    "6" => Light::new(5, "F", 6),
     _ => {
       panic!("Invalid Light ID. Possible value [1-6]");
     }

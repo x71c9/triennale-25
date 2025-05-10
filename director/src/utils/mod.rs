@@ -3,7 +3,6 @@ use std::env;
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::Command;
-// use std::thread;
 use std::time::Duration;
 
 pub enum ScriptName {
