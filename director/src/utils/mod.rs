@@ -97,7 +97,7 @@ pub fn get_home_dir() -> PathBuf {
 
 pub fn get_scripts_dir() -> PathBuf {
   let home_dir = get_home_dir();
-  let path_from_string = PathBuf::from("repos/triennale-25/director/scripts");
+  let path_from_string = PathBuf::from("repos/triennale-25/robotics");
   let script_dir = home_dir.join(&path_from_string);
   return script_dir;
 }
@@ -109,9 +109,15 @@ pub fn invoke_script(
   let script_file_name = format!("{}.py", script_name.as_str());
   let scripts_dir = get_scripts_dir();
   let script_path = scripts_dir.join(script_file_name);
+
   let mut full_args = vec![script_path.to_str().unwrap()];
   full_args.extend_from_slice(args);
-  let output = Command::new("python3")
+
+  // Debug print: show full path and arguments
+  println!("Invoking script: {}", script_path.display());
+  println!("With arguments: {:?}", args);
+
+  let output = Command::new("python")
     .args(&full_args)
     .output()
     .ok()
@@ -126,7 +132,7 @@ pub fn invoke_script(
     panic!("Script failed")
   }
 
-  return Some(String::from_utf8_lossy(&output.stdout).to_string());
+  Some(String::from_utf8_lossy(&output.stdout).to_string())
 }
 
 pub fn print_dry_run(msg: &str) {
