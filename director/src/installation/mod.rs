@@ -14,6 +14,7 @@ impl Director {
       light_manager: lights::LightManager::new().await,
       sparkling_manager: sparklings::SparklingManager::new().await,
     };
+    director.robot_manager.initialize_all().await;
     println!("Director initialized");
     return director;
   }

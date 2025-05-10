@@ -10,7 +10,8 @@ use tokio;
 use crate::utils;
 use crate::config::{self, ConfigParam};
 
-const SERVICE_ADDRESS: &'static str = "127.0.0.1:5000";
+// const SERVICE_ADDRESS: &'static str = "127.0.0.1:5000";
+const SERVICE_ADDRESS: &'static str = "255.255.255.255:5000";
 
 const SCANNING_POSITION: f64 = 0.8;
 const SYNCING_POSITION: f64 = 0.2;
@@ -76,7 +77,7 @@ impl RobotManager {
         ROBOT_D_CONSTANT_TIME_MS,
       )),
     };
-    robot_manager.initialize_all().await;
+    // robot_manager.initialize_all().await;
     let ra = Arc::clone(&robot_manager.robot_a);
     let rb = Arc::clone(&robot_manager.robot_b);
     let rc = Arc::clone(&robot_manager.robot_c);
@@ -385,6 +386,7 @@ async fn start_service(
 ) {
   println!("Starting Robot Service...");
   let socket = UdpSocket::bind("0.0.0.0:0").expect("could not bind socket");
+  socket.set_broadcast(true).expect("could not enable broadcast");
 
   loop {
     let positions = vec![
@@ -439,34 +441,34 @@ fn get_syncing_delay() -> u64 {
   return delay;
 }
 
-pub fn create(id: &str) -> Arc<Robot> {
-  match id {
-    "1" => Arc::new(Robot::new(
-      2,
-      "B",
-      ROBOT_B_INIT_TIME_MS,
-      ROBOT_B_CONSTANT_TIME_MS,
-    )),
-    "2" => Arc::new(Robot::new(
-      3,
-      "C",
-      ROBOT_C_INIT_TIME_MS,
-      ROBOT_C_CONSTANT_TIME_MS,
-    )),
-    "3" => Arc::new(Robot::new(
-      1,
-      "A",
-      ROBOT_A_INIT_TIME_MS,
-      ROBOT_A_CONSTANT_TIME_MS,
-    )),
-    "4" => Arc::new(Robot::new(
-      4,
-      "D",
-      ROBOT_D_INIT_TIME_MS,
-      ROBOT_D_CONSTANT_TIME_MS,
-    )),
-    _ => {
-      panic!("Invalid Robot ID. Possible value [1-4]");
-    }
-  }
-}
+// pub fn create(id: &str) -> Arc<Robot> {
+//   match id {
+//     "1" => Arc::new(Robot::new(
+//       2,
+//       "B",
+//       ROBOT_B_INIT_TIME_MS,
+//       ROBOT_B_CONSTANT_TIME_MS,
+//     )),
+//     "2" => Arc::new(Robot::new(
+//       3,
+//       "C",
+//       ROBOT_C_INIT_TIME_MS,
+//       ROBOT_C_CONSTANT_TIME_MS,
+//     )),
+//     "3" => Arc::new(Robot::new(
+//       1,
+//       "A",
+//       ROBOT_A_INIT_TIME_MS,
+//       ROBOT_A_CONSTANT_TIME_MS,
+//     )),
+//     "4" => Arc::new(Robot::new(
+//       4,
+//       "D",
+//       ROBOT_D_INIT_TIME_MS,
+//       ROBOT_D_CONSTANT_TIME_MS,
+//     )),
+//     _ => {
+//       panic!("Invalid Robot ID. Possible value [1-4]");
+//     }
+//   }
+// }

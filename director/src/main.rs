@@ -72,7 +72,15 @@ async fn handle_robots(args: &[String]) {
   match command.as_str() {
     "init" => {
       println!("Initializing robot with ID: {}", id);
-      let robot = robots::create(id);
+      let robot_manager = robots::RobotManager::new().await;
+      let robot = match id.as_str() {
+        "1" => robot_manager.robot_b,
+        "2" => robot_manager.robot_c,
+        "3" => robot_manager.robot_a,
+        "4" => robot_manager.robot_d,
+        _ => panic!("Invalid Robot ID: {}", id)
+      };
+      // let robot = robots::create(id);
       robot.init().await;
     }
     "move" => {
@@ -86,7 +94,15 @@ async fn handle_robots(args: &[String]) {
         "Moving robot ID: {} to position: {} with speed: {}",
         id, pos_str, speed_str
       );
-      let robot = robots::create(id);
+      let robot_manager = robots::RobotManager::new().await;
+      let robot = match id.as_str() {
+        "1" => robot_manager.robot_b,
+        "2" => robot_manager.robot_c,
+        "3" => robot_manager.robot_a,
+        "4" => robot_manager.robot_d,
+        _ => panic!("Invalid Robot ID: {}", id)
+      };
+      // let robot = robots::create(id);
       let pos: f64 = pos_str.parse().expect("Invalid position value");
       let speed: f64 = speed_str.parse().expect("Invalid speed value");
       robot.set_position(pos, speed).await;
