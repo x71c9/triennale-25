@@ -327,7 +327,8 @@ impl Robot {
         .expect("No lines in script output");
       println!("Get real position response:\n{}", last_line);
       let number_value: f64 = last_line.parse().expect("Cannot parse real pos");
-      number_value
+      let inverted = number_value * -1.0;
+      inverted
     };
     let mapped_position = map_position(pos);
     println!("Current position mapped is {}", mapped_position);
