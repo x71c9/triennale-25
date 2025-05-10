@@ -1,4 +1,6 @@
+use crate::utils::SerialDevice;
 use std::env;
+use std::sync::{Arc, Mutex};
 
 mod installation;
 mod lights;
@@ -78,7 +80,7 @@ async fn handle_robots(args: &[String]) {
         "2" => robot_manager.robot_c,
         "3" => robot_manager.robot_a,
         "4" => robot_manager.robot_d,
-        _ => panic!("Invalid Robot ID: {}", id)
+        _ => panic!("Invalid Robot ID: {}", id),
       };
       // let robot = robots::create(id);
       robot.init().await;
@@ -100,7 +102,7 @@ async fn handle_robots(args: &[String]) {
         "2" => robot_manager.robot_c,
         "3" => robot_manager.robot_a,
         "4" => robot_manager.robot_d,
-        _ => panic!("Invalid Robot ID: {}", id)
+        _ => panic!("Invalid Robot ID: {}", id),
       };
       // let robot = robots::create(id);
       let pos: f64 = pos_str.parse().expect("Invalid position value");
@@ -109,9 +111,8 @@ async fn handle_robots(args: &[String]) {
     }
     _ => eprintln!("Unknown robots subcommand: {}", command),
   }
-  
-  std::process::exit(0);
 
+  std::process::exit(0);
 }
 
 async fn handle_lights(args: &[String]) {
@@ -123,15 +124,28 @@ async fn handle_lights(args: &[String]) {
   let id = &args[2];
   let state = &args[3];
 
+  let serial_device: Arc<Mutex<dyn SerialDevice>> =
+    if config::get(config::ConfigParam::DRYRUN) {
+      Arc::new(Mutex::new(
+        utils::MockSerialDevice::new(lights::LIGHT_SERIAL_PORT_NAME, lights::LIGHT_SERIAL_BAUD)
+          .expect("Cannot initialize MockSerialDevice"),
+      ))
+    } else {
+      let real =
+        utils::RealSerialDevice::new(lights::LIGHT_SERIAL_PORT_NAME, lights::LIGHT_SERIAL_BAUD)
+          .await
+          .expect("Cannot initialize RealSerialDevice");
+      Arc::new(Mutex::new(real))
+    };
   match state.as_str() {
     "on" => {
       println!("Turning light {} for ID: {}", state, id);
-      let mut light = lights::create(id).await;
+      let mut light = lights::create(id, Arc::clone(&serial_device)).await;
       light.turn_on();
     }
     "off" => {
       println!("Turning light {} for ID: {}", state, id);
-      let mut light = lights::create(id).await;
+      let mut light = lights::create(id, Arc::clone(&serial_device)).await;
       light.turn_off();
     }
     _ => eprintln!("Invalid state for light: {}", state),

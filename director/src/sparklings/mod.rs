@@ -1,5 +1,5 @@
-use crate::utils::{self, print_dry_run};
 use crate::config::{self, ConfigParam};
+use crate::utils::{self, print_dry_run};
 use reqwest::blocking;
 
 const SPARKLING_SERVICE_IP: &str = "192.168.125.3";

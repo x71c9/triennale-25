@@ -1,11 +1,11 @@
+use crate::config::{self, ConfigParam};
 use crate::utils::{
   self, print_dry_run, MockSerialDevice, RealSerialDevice, SerialDevice,
 };
-use crate::config::{self, ConfigParam};
+use std::sync::{Arc, Mutex};
 
-// const LIGHT_SERIAL_PORT_NAME: &'static str = "/dev/tty.usbmodem14101";
-const LIGHT_SERIAL_PORT_NAME: &'static str = "/dev/ttyACM0";
-const LIGHT_SERIAL_BAUD: u32 = 115200;
+pub const LIGHT_SERIAL_PORT_NAME: &'static str = "/dev/ttyACM0";
+pub const LIGHT_SERIAL_BAUD: u32 = 115200;
 
 pub struct LightManager {
   pub light_a: Light,
@@ -18,49 +18,66 @@ pub struct LightManager {
 
 impl LightManager {
   pub async fn new() -> Self {
+    let serial_device: Arc<Mutex<dyn SerialDevice>> =
+      if config::get(ConfigParam::DRYRUN) {
+        Arc::new(Mutex::new(
+          MockSerialDevice::new(LIGHT_SERIAL_PORT_NAME, LIGHT_SERIAL_BAUD)
+            .expect("Cannot initialize MockSerialDevice"),
+        ))
+      } else {
+        Arc::new(Mutex::new(
+          RealSerialDevice::new(LIGHT_SERIAL_PORT_NAME, LIGHT_SERIAL_BAUD)
+            .await
+            .expect("Cannot initialize RealSerialDevice"),
+        ))
+      };
+
     let mut light_manager: LightManager = LightManager {
-      light_a: Light::new(0, "A", 5).await,
-      light_b: Light::new(1, "B", 3).await,
-      light_c: Light::new(2, "C", 1).await,
-      light_d: Light::new(3, "D", 2).await,
-      light_e: Light::new(4, "E", 4).await,
-      light_f: Light::new(5, "F", 6).await,
+      light_a: Light::new(0, "A", 5, Arc::clone(&serial_device)).await,
+      light_b: Light::new(1, "B", 3, Arc::clone(&serial_device)).await,
+      light_c: Light::new(2, "C", 1, Arc::clone(&serial_device)).await,
+      light_d: Light::new(3, "D", 2, Arc::clone(&serial_device)).await,
+      light_e: Light::new(4, "E", 4, Arc::clone(&serial_device)).await,
+      light_f: Light::new(5, "F", 6, Arc::clone(&serial_device)).await,
     };
     light_manager.all_turn_on().await;
     utils::sleep(5000, "LightManager new").await;
     light_manager.all_turn_off().await;
     return light_manager;
   }
+
   pub async fn regulate_light(&mut self) {
     self.light_a.dim(5000);
   }
+
   pub async fn all_turn_on(&mut self) {
     crate::log_enter!("lights.all_turn_on", "");
     self.light_a.turn_on();
-    utils::sleep(1000 * 2, "LightManager all_turn_on").await;
+    utils::sleep(2000, "LightManager all_turn_on").await;
     self.light_b.turn_on();
-    utils::sleep(1000 * 2, "LightManager all_turn_on").await;
+    utils::sleep(2000, "LightManager all_turn_on").await;
     self.light_c.turn_on();
-    utils::sleep(1000 * 2, "LightManager all_turn_on").await;
+    utils::sleep(2000, "LightManager all_turn_on").await;
     self.light_d.turn_on();
-    utils::sleep(1000 * 2, "LightManager all_turn_on").await;
+    utils::sleep(2000, "LightManager all_turn_on").await;
     self.light_e.turn_on();
-    utils::sleep(1000 * 2, "LightManager all_turn_on").await;
+    utils::sleep(2000, "LightManager all_turn_on").await;
     self.light_f.turn_on();
     crate::log_exit!("lights.all_turn_on", "");
   }
+
   pub async fn all_turn_off(&mut self) {
     crate::log_enter!("lights.all_turn_off", "");
     self.light_a.turn_off();
-    utils::sleep(1000 * 2, "LightManager all_turn_off").await;
+    utils::sleep(2000, "LightManager all_turn_off").await;
     self.light_b.turn_off();
-    utils::sleep(1000 * 2, "LightManager all_turn_off").await;
+    utils::sleep(2000, "LightManager all_turn_off").await;
     self.light_c.turn_off();
-    utils::sleep(1000 * 2, "LightManager all_turn_off").await;
+    utils::sleep(2000, "LightManager all_turn_off").await;
     self.light_d.turn_off();
-    utils::sleep(1000 * 2, "LightManager all_turn_off").await;
+    utils::sleep(2000, "LightManager all_turn_off").await;
     self.light_e.turn_off();
-    utils::sleep(1000 * 2, "LightManager all_turn_off").await;
+    utils::sleep(2000, "LightManager all_turn_off").await;
     self.light_f.turn_off();
     crate::log_exit!("lights.all_turn_off", "");
   }
@@ -69,23 +86,17 @@ impl LightManager {
 pub struct Light {
   pub id: u8,
   pub name: &'static str,
-  pub serial_device: Box<dyn SerialDevice>,
   pub serial_channel: u8,
+  pub serial_device: Arc<Mutex<dyn SerialDevice>>,
 }
 
 impl Light {
-  pub async fn new(id: u8, name: &'static str, serial_channel: u8) -> Self {
-    let serial_device: Box<dyn SerialDevice> = if config::get(ConfigParam::DRYRUN) {
-      Box::new(
-        MockSerialDevice::new(LIGHT_SERIAL_PORT_NAME, LIGHT_SERIAL_BAUD)
-          .expect("Cannot initialize MockSerialDevice"),
-      )
-    } else {
-      Box::new(
-        RealSerialDevice::new(LIGHT_SERIAL_PORT_NAME, LIGHT_SERIAL_BAUD).await
-          .expect("Cannot initialize RealSerialDevice"),
-      )
-    };
+  pub async fn new(
+    id: u8,
+    name: &'static str,
+    serial_channel: u8,
+    serial_device: Arc<Mutex<dyn SerialDevice>>,
+  ) -> Self {
     let light: Light = Light {
       id,
       name,
@@ -95,20 +106,24 @@ impl Light {
     light.print();
     return light;
   }
+
   pub fn dim(&mut self, value: u16) {
     crate::log_enter!("lights.dim", self.name);
     if config::get(ConfigParam::DRYRUN) {
       print_dry_run(format!("LIGHT [{}] dimmed {}", self.name, value).as_str());
-      crate::log_exit!("lights.turn_off", self.name);
+      crate::log_exit!("lights.dim", self.name);
       return;
     }
-    let message = format!("DIM {} {}", self.serial_channel.to_string(), value.to_string());
+    let message = format!("DIM {} {}", self.serial_channel, value);
     self
       .serial_device
-      .send_message(message.as_str())
+      .lock()
+      .unwrap()
+      .send_message(&message)
       .expect("failed to send on message dim");
     crate::log_exit!("lights.dim", self.name);
   }
+
   pub fn turn_on(&mut self) {
     crate::log_enter!("lights.turn_on", self.name);
     if config::get(ConfigParam::DRYRUN) {
@@ -116,13 +131,16 @@ impl Light {
       crate::log_exit!("lights.turn_on", self.name);
       return;
     }
-    let message = format!("DIM {} 10000", self.serial_channel.to_string());
+    let message = format!("DIM {} 10000", self.serial_channel);
     self
       .serial_device
-      .send_message(message.as_str())
+      .lock()
+      .unwrap()
+      .send_message(&message)
       .expect("failed to send on message on");
     crate::log_exit!("lights.turn_on", self.name);
   }
+
   pub fn turn_off(&mut self) {
     crate::log_enter!("lights.turn_off", self.name);
     if config::get(ConfigParam::DRYRUN) {
@@ -130,26 +148,32 @@ impl Light {
       crate::log_exit!("lights.turn_off", self.name);
       return;
     }
-    let message = format!("DIM {} 0", self.serial_channel.to_string());
+    let message = format!("DIM {} 0", self.serial_channel);
     self
       .serial_device
-      .send_message(message.as_str())
+      .lock()
+      .unwrap()
+      .send_message(&message)
       .expect("failed to send on message off");
     crate::log_exit!("lights.turn_off", self.name);
   }
+
   fn print(&self) {
     println!("LIGHT {} {}", self.id, self.name);
   }
 }
 
-pub async fn create(id: &str) -> Light {
+pub async fn create(
+  id: &str,
+  serial_device: Arc<Mutex<dyn SerialDevice>>,
+) -> Light {
   match id {
-    "1" => Light::new(0, "C", 1).await,
-    "2" => Light::new(1, "D", 2).await,
-    "3" => Light::new(2, "B", 3).await,
-    "4" => Light::new(3, "E", 4).await,
-    "5" => Light::new(4, "A", 6).await, // inverted
-    "6" => Light::new(5, "F", 5).await, // inverted
+    "1" => Light::new(0, "C", 1, Arc::clone(&serial_device)).await,
+    "2" => Light::new(1, "D", 2, Arc::clone(&serial_device)).await,
+    "3" => Light::new(2, "B", 3, Arc::clone(&serial_device)).await,
+    "4" => Light::new(3, "E", 4, Arc::clone(&serial_device)).await,
+    "5" => Light::new(4, "A", 6, Arc::clone(&serial_device)).await,
+    "6" => Light::new(5, "F", 5, Arc::clone(&serial_device)).await,
     _ => {
       panic!("Invalid Light ID. Possible value [1-6]");
     }
