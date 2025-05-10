@@ -13,8 +13,8 @@ use crate::config::{self, ConfigParam};
 // const SERVICE_ADDRESS: &'static str = "127.0.0.1:5000";
 const SERVICE_ADDRESS: &'static str = "255.255.255.255:6666";
 
-const SCANNING_POSITION: f64 = 0.8;
-const SYNCING_POSITION: f64 = 0.2;
+const SCANNING_POSITION: f64 = 4.8;
+const SYNCING_POSITION: f64 = 0.8;
 
 const BUFFERING_TIME_MS: u64 = 1000 * 60 * 2;
 const SCANNING_TIME_MS: u64 = 1000 * 60 * 1;
@@ -266,7 +266,7 @@ impl Robot {
   pub async fn set_position(self: &Arc<Self>, pos: f64, speed: f64) {
     crate::log_enter!("Robot set_position", pos);
     let current_position = *self.position.read().await;
-    println!("Current position is {}", self.get_position().await.to_string());
+    println!("Current position is {}", current_position);
     if config::get(ConfigParam::DRYRUN) {
       utils::print_dry_run(
         format!("Invoked robot set position script {} {}", pos, speed).as_str(),
