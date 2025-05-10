@@ -25,10 +25,10 @@ const ROBOT_B_INIT_TIME_MS: u64 = 1000 * 5;
 const ROBOT_C_INIT_TIME_MS: u64 = 1000 * 5;
 const ROBOT_D_INIT_TIME_MS: u64 = 1000 * 5;
 
-const ROBOT_A_CONSTANT_TIME_MS: u64 = 1000 * 38;
-const ROBOT_B_CONSTANT_TIME_MS: u64 = 1000 * 30;
-const ROBOT_C_CONSTANT_TIME_MS: u64 = 1000 * 30;
-const ROBOT_D_CONSTANT_TIME_MS: u64 = 1000 * 30;
+const ROBOT_A_CONSTANT_TIME_MS: u64 = 1000 * 93;
+const ROBOT_B_CONSTANT_TIME_MS: u64 = 1000 * 86;
+const ROBOT_C_CONSTANT_TIME_MS: u64 = 1000 * 90;
+const ROBOT_D_CONSTANT_TIME_MS: u64 = 1000 * 93;
 
 const POSITION_INTERVAL_MS: u64 = 100;
 
@@ -265,7 +265,7 @@ impl Robot {
 
   pub async fn set_position(self: &Arc<Self>, pos: f64, speed: f64) {
     crate::log_enter!("Robot set_position", pos);
-    let current_position = self.get_position().await;
+    let current_position = *self.position.read().await;
     println!("Current position is {}", self.get_position().await.to_string());
     if config::get(ConfigParam::DRYRUN) {
       utils::print_dry_run(
@@ -299,7 +299,8 @@ impl Robot {
     }
     let mut p = self.position.write().await;
     *p = pos;
-    println!("Current position is {}", self.get_position().await.to_string());
+    let after_position = *self.position.read().await;
+    println!("Current position is {}", after_position);
     crate::log_exit!("Robot set_position", pos);
   }
 
