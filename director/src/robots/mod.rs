@@ -279,11 +279,10 @@ impl Robot {
       );
     }
     let mapped_position = map_position(pos);
-    let current_mapped_position = map_position(current_position);
     println!("Mapped position {}", mapped_position);
-    println!("Current mapped position {}", current_mapped_position);
+    println!("Current mapped position {}", current_position);
     let time = resolve_time_ms(
-      &current_mapped_position,
+      &current_position,
       &mapped_position,
       &speed,
       &(self.speed_constant as f64),
