@@ -298,6 +298,7 @@ impl Robot {
       }
       utils::sleep_silent(POSITION_INTERVAL_MS).await;
     }
+    println!("Loop stopped");
     let mut p = self.position.write().await;
     *p = mapped_position;
     let after_position = *self.position.read().await;
@@ -305,12 +306,13 @@ impl Robot {
     crate::log_exit!("Robot set_position", mapped_position);
   }
 
-  pub async fn get_position(&self) -> f64 {
-    crate::log_enter!("Robot get_position", self.id);
-    let pos = *self.position.read().await;
-    crate::log_exit!("Robot get_position RESPONSE: ", pos);
-    return pos;
-  }
+  // pub async fn get_position(&self) -> f64 {
+  //   crate::log_enter!("Robot get_position", self.id);
+  //   let pos = *self.position.read().await;
+  //   crate::log_exit!("Robot get_position RESPONSE: ", pos);
+  //   return pos;
+  // }
+
   // fn get_position(&self) -> f64 {
   //   return self.position;
   //   // if DRYRUN {
