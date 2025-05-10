@@ -11,7 +11,7 @@ use crate::utils;
 use crate::config::{self, ConfigParam};
 
 // const SERVICE_ADDRESS: &'static str = "127.0.0.1:5000";
-const SERVICE_ADDRESS: &'static str = "255.255.255.255:5000";
+const SERVICE_ADDRESS: &'static str = "255.255.255.255:6666";
 
 const SCANNING_POSITION: f64 = 0.8;
 const SYNCING_POSITION: f64 = 0.2;
