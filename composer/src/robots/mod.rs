@@ -8,7 +8,7 @@ use tokio::sync::RwLock;
 use tokio;
 
 use crate::utils;
-use crate::DRY_RUN;
+use crate::config::{self, ConfigParam};
 
 const SERVICE_ADDRESS: &'static str = "127.0.0.1:5000";
 
@@ -88,10 +88,6 @@ impl RobotManager {
     return robot_manager;
   }
   pub async fn initialize_all(&self) {
-    // TODO remove
-    // if crate::NARROW == true {
-    //   return;
-    // }
     crate::log_enter!("RobotManager initialize_all", "");
     self.robot_a.init().await;
     self.robot_b.init().await;
@@ -100,10 +96,6 @@ impl RobotManager {
     crate::log_exit!("RobotManager initialize_all", "");
   }
   pub async fn start_buffering(&mut self) {
-    // TODO remove
-    // if crate::NARROW == true {
-    //   return;
-    // }
     crate::log_enter!("RobotManager start_buffering", "");
     tokio::join!(
       countdown(BUFFERING_TIME_MS),
@@ -115,10 +107,6 @@ impl RobotManager {
     crate::log_enter!("RobotManager stop_buffering", "");
   }
   pub async fn start_scanning(&mut self) {
-    // TODO remove
-    // if crate::NARROW == true {
-    //   return;
-    // }
     let delay_a = get_scanning_delay();
     let delay_b = get_scanning_delay();
     let delay_c = get_scanning_delay();
@@ -134,10 +122,6 @@ impl RobotManager {
     );
   }
   pub async fn start_syncing(&mut self) {
-    // TODO remove
-    // if crate::NARROW == true {
-    //   return;
-    // }
     let delay_a = get_syncing_delay();
     let delay_b = get_syncing_delay();
     let delay_c = get_syncing_delay();
@@ -202,7 +186,7 @@ impl Robot {
 
   pub async fn init(&self) {
     crate::log_enter!("Robot init", &self.id);
-    if DRY_RUN {
+    if config::get(ConfigParam::DRYRUN) {
       utils::print_dry_run("Invoked robot init script");
       utils::sleep(self.init_time, "Robot init").await;
       self.print();
@@ -281,7 +265,7 @@ impl Robot {
   pub async fn set_position(self: &Arc<Self>, pos: f64, speed: f64) {
     crate::log_enter!("Robot set_position", pos);
     let current_position = self.get_position().await;
-    if DRY_RUN {
+    if config::get(ConfigParam::DRYRUN) {
       utils::print_dry_run(
         format!("Invoked robot set position script {} {}", pos, speed).as_str(),
       );
@@ -324,7 +308,7 @@ impl Robot {
   }
   // fn get_position(&self) -> f64 {
   //   return self.position;
-  //   // if DRY_RUN {
+  //   // if DRYRUN {
   //   //   utils::print_dry_run("Invoked robot get position script");
   //   //   return String::from("[FAKE];0;0");
   //   // }
@@ -457,10 +441,30 @@ fn get_syncing_delay() -> u64 {
 
 pub fn create(id: &str) -> Arc<Robot> {
   match id {
-    "1" => Arc::new(Robot::new(2, "B", ROBOT_B_INIT_TIME_MS, ROBOT_B_CONSTANT_TIME_MS)),
-    "2" => Arc::new(Robot::new(3, "C", ROBOT_C_INIT_TIME_MS, ROBOT_C_CONSTANT_TIME_MS)),
-    "3" => Arc::new(Robot::new(1, "A", ROBOT_A_INIT_TIME_MS, ROBOT_A_CONSTANT_TIME_MS)),
-    "4" => Arc::new(Robot::new(4, "D", ROBOT_D_INIT_TIME_MS, ROBOT_D_CONSTANT_TIME_MS)),
+    "1" => Arc::new(Robot::new(
+      2,
+      "B",
+      ROBOT_B_INIT_TIME_MS,
+      ROBOT_B_CONSTANT_TIME_MS,
+    )),
+    "2" => Arc::new(Robot::new(
+      3,
+      "C",
+      ROBOT_C_INIT_TIME_MS,
+      ROBOT_C_CONSTANT_TIME_MS,
+    )),
+    "3" => Arc::new(Robot::new(
+      1,
+      "A",
+      ROBOT_A_INIT_TIME_MS,
+      ROBOT_A_CONSTANT_TIME_MS,
+    )),
+    "4" => Arc::new(Robot::new(
+      4,
+      "D",
+      ROBOT_D_INIT_TIME_MS,
+      ROBOT_D_CONSTANT_TIME_MS,
+    )),
     _ => {
       panic!("Invalid Robot ID. Possible value [1-4]");
     }

@@ -1,5 +1,5 @@
 use crate::utils::{self, print_dry_run};
-use crate::DRY_RUN;
+use crate::config::{self, ConfigParam};
 use reqwest::blocking;
 
 const SPARKLING_SERVICE_IP: &str = "192.168.125.3";
@@ -23,10 +23,6 @@ impl SparklingManager {
     return sparkiling_manager;
   }
   pub async fn run_sparkling(&self) {
-    // TODO remove
-    // if crate::NARROW == true {
-    //   return;
-    // }
     self.sparkling_a.run_sparkling().await;
     utils::sleep(1000, "SparklingManager run_sparkling").await;
     self.sparkling_b.run_sparkling().await;
@@ -34,10 +30,6 @@ impl SparklingManager {
     self.sparkling_c.run_sparkling().await;
   }
   pub async fn all_turn_on(&mut self) {
-    // TODO remove
-    // if crate::NARROW == true {
-    //   return;
-    // }
     crate::log_enter!("sparkling.all_turn_on", "");
     self.sparkling_a.turn_on();
     utils::sleep(2000, "SparklingManager all_turn_on").await;
@@ -47,10 +39,6 @@ impl SparklingManager {
     crate::log_exit!("sparkling.all_turn_on", "");
   }
   pub async fn all_turn_off(&mut self) {
-    // TODO remove
-    // if crate::NARROW == true {
-    //   return;
-    // }
     crate::log_enter!("sparkling.all_turn_off", "");
     self.sparkling_a.turn_off();
     utils::sleep(2000, "SparklingManager all_turn_off").await;
@@ -78,21 +66,13 @@ impl Sparkling {
     return light;
   }
   pub async fn run_sparkling(&self) {
-    // TODO remove
-    // if crate::NARROW == true {
-    //   return;
-    // }
     self.turn_on();
     utils::sleep(1000 * 10, "Sparkling run_sparkling").await;
     self.turn_off();
   }
   pub fn turn_on(&self) {
-    // TODO remove
-    // if crate::NARROW == true {
-    //   return;
-    // }
     crate::log_enter!("sparkling.turn_on", self.name);
-    if DRY_RUN {
+    if config::get(ConfigParam::DRYRUN) {
       print_dry_run(format!("SPARKLING [{}] turned ON", self.name).as_str());
       crate::log_exit!("sparkling.turn_on", self.name);
       return;
@@ -101,12 +81,8 @@ impl Sparkling {
     crate::log_exit!("sparkling.turn_on", self.name);
   }
   pub fn turn_off(&self) {
-    // TODO remove
-    // if crate::NARROW == true {
-    //   return;
-    // }
     crate::log_enter!("sparkling.turn_off", self.name);
-    if DRY_RUN {
+    if config::get(ConfigParam::DRYRUN) {
       print_dry_run(format!("SPARKLING [{}] turned OFF", self.name).as_str());
       crate::log_exit!("sparkling.turn_off", self.name);
       return;

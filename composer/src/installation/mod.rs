@@ -18,11 +18,6 @@ impl Composer {
     return composer;
   }
   async fn start(&mut self) {
-    // TODO remove
-    // if crate::NARROW == true {
-    //   self.move_robot().await;
-    //   return;
-    // }
     println!("Starting composer...");
     loop {
       self.start_buffering().await;

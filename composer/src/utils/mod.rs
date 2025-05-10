@@ -139,7 +139,7 @@ macro_rules! log_enter {
         let args = vec![
             $( format!("{}", $val) ),*
         ];
-        if crate::DEBUG == true {
+        if crate::config::get(crate::config::ConfigParam::VERBOSE) == true {
           println!("→ Entering {}({})", $name, args.join(", "));
         }
     }};
@@ -151,7 +151,7 @@ macro_rules! log_exit {
         let args = vec![
             $( format!("{}", $val) ),*
         ];
-        if crate::DEBUG == true {
+        if crate::config::get(crate::config::ConfigParam::VERBOSE) == true {
           println!("← Exiting {}({})", $name, args.join(", "));
         }
     }};

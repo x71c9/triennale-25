@@ -6,9 +6,8 @@ mod robots;
 mod sparklings;
 mod utils;
 
-pub const DEBUG: bool = true;
-pub const DRY_RUN: bool = true;
-pub const NARROW: bool = true;
+mod config;
+use config::{Config, CONFIG};
 
 #[tokio::main]
 async fn main() {
@@ -18,6 +17,39 @@ async fn main() {
     eprintln!("Usage: cargo run <command> [subcommands...]");
     return;
   }
+
+  let mut debug = true;
+  let mut dry_run = true;
+
+  let mut args = env::args().collect::<Vec<_>>();
+
+  // Look for global flags and remove them from `args`
+  args.retain(|arg| match arg.as_str() {
+    "--debug" => {
+      debug = true;
+      false
+    }
+    "--no-debug" => {
+      debug = false;
+      false
+    }
+    "--dry-run" => {
+      dry_run = true;
+      false
+    }
+    "--no-dry-run" => {
+      dry_run = false;
+      false
+    }
+    _ => true,
+  });
+
+  // Initialize global config
+  CONFIG
+    .set(Config { debug, dry_run })
+    .expect("Config already set");
+
+  println!("Selected config: {:?}", CONFIG.get().unwrap());
 
   match args[1].as_str() {
     "robots" | "r" => handle_robots(&args).await,
@@ -75,12 +107,12 @@ async fn handle_lights(args: &[String]) {
       println!("Turning light {} for ID: {}", state, id);
       let mut light = lights::create(id);
       light.turn_on();
-    },
+    }
     "off" => {
       println!("Turning light {} for ID: {}", state, id);
       let mut light = lights::create(id);
       light.turn_off();
-    },
+    }
     _ => eprintln!("Invalid state for light: {}", state),
   }
 }
@@ -99,12 +131,12 @@ async fn handle_sparklings(args: &[String]) {
       println!("Turning sparkling {} for ID: {}", state, id);
       let sparkling = sparklings::create(id);
       sparkling.turn_on();
-    },
+    }
     "off" => {
       println!("Turning sparkling {} for ID: {}", state, id);
       let sparkling = sparklings::create(id);
       sparkling.turn_off();
-    },
+    }
     _ => eprintln!("Invalid state for spark: {}", state),
   }
 }

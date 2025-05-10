@@ -1,7 +1,7 @@
 use crate::utils::{
   self, print_dry_run, MockSerialDevice, RealSerialDevice, SerialDevice,
 };
-use crate::DRY_RUN;
+use crate::config::{self, ConfigParam};
 
 const LIGHT_SERIAL_PORT_NAME: &'static str = "/dev/tty.usbmodem14101";
 const LIGHT_SERIAL_BAUD: u32 = 9600;
@@ -31,18 +31,9 @@ impl LightManager {
     return light_manager;
   }
   pub async fn regulate_light(&self) {
-    // TODO remove
-    if crate::NARROW == true {
-      return;
-    }
-    // TODO
     self.light_a.regulate_light();
   }
   pub async fn all_turn_on(&mut self) {
-    // TODO remove
-    if crate::NARROW == true {
-      return;
-    }
     crate::log_enter!("lights.all_turn_on", "");
     self.light_a.turn_on();
     utils::sleep(1000 * 2, "LightManager all_turn_on").await;
@@ -58,10 +49,6 @@ impl LightManager {
     crate::log_exit!("lights.all_turn_on", "");
   }
   pub async fn all_turn_off(&mut self) {
-    // TODO remove
-    if crate::NARROW == true {
-      return;
-    }
     crate::log_enter!("lights.all_turn_off", "");
     self.light_a.turn_off();
     utils::sleep(1000 * 2, "LightManager all_turn_off").await;
@@ -86,7 +73,7 @@ pub struct Light {
 
 impl Light {
   pub fn new(id: u8, name: &'static str) -> Self {
-    let serial_device: Box<dyn SerialDevice> = if DRY_RUN {
+    let serial_device: Box<dyn SerialDevice> = if config::get(ConfigParam::DRYRUN) {
       Box::new(
         MockSerialDevice::new(LIGHT_SERIAL_PORT_NAME, LIGHT_SERIAL_BAUD)
           .expect("Cannot initialize MockSerialDevice"),
@@ -109,12 +96,8 @@ impl Light {
     // TODO
   }
   pub fn turn_on(&mut self) {
-    // TODO remove
-    if crate::NARROW == true {
-      return;
-    }
     crate::log_enter!("lights.turn_on", self.name);
-    if DRY_RUN {
+    if config::get(ConfigParam::DRYRUN) {
       print_dry_run(format!("LIGHT [{}] turned ON", self.name).as_str());
       crate::log_exit!("lights.turn_on", self.name);
       return;
@@ -126,12 +109,8 @@ impl Light {
     crate::log_exit!("lights.turn_on", self.name);
   }
   pub fn turn_off(&mut self) {
-    // TODO remove
-    if crate::NARROW == true {
-      return;
-    }
     crate::log_enter!("lights.turn_off", self.name);
-    if DRY_RUN {
+    if config::get(ConfigParam::DRYRUN) {
       print_dry_run(format!("LIGHT [{}] turned OFF", self.name).as_str());
       crate::log_exit!("lights.turn_off", self.name);
       return;
