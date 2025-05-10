@@ -383,7 +383,7 @@ fn resolve_time_ms(
   }
   let distance = (position - current_position).abs();
   println!("Distance: {}", distance);
-  let time = distance * speed * k;
+  let time = distance * speed * k * 0.5;
   println!("Time: {}", time);
   time.ceil() as u64 // Round up to ensure enough time to reach
 }
