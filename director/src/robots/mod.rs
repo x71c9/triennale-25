@@ -293,6 +293,10 @@ impl Robot {
     println!("Resolved steps {}", steps);
     let step_size = delta / steps as f64;
     println!("Resolved steps_size {}", step_size);
+    {
+      let mut p = self.position.write().await;
+      *p = current_position;
+    }
     for _ in 0..steps {
       {
         let mut p = self.position.write().await;
