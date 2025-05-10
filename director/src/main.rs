@@ -109,6 +109,9 @@ async fn handle_robots(args: &[String]) {
     }
     _ => eprintln!("Unknown robots subcommand: {}", command),
   }
+  
+  std::process::exit(0);
+
 }
 
 async fn handle_lights(args: &[String]) {
