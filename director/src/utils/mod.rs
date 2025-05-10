@@ -54,6 +54,7 @@ impl SerialDevice for RealSerialDevice {
       self.baud_rate.to_string()
     );
     self.port.write_all(msg.as_bytes())?;
+    self.port.flush()?;
     Ok(())
   }
 }
