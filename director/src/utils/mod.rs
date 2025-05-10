@@ -32,11 +32,14 @@ pub struct RealSerialDevice {
 }
 
 impl RealSerialDevice {
-  pub async fn new(port_name: &'static str, baud_rate: u32) -> anyhow::Result<Self> {
+  pub async fn new(
+    port_name: &'static str,
+    baud_rate: u32,
+  ) -> anyhow::Result<Self> {
     let port = serialport::new(port_name, baud_rate)
       .timeout(Duration::from_secs(2))
       .open_native()?;
-    sleep(2000, "Real serial device new").await;
+    sleep(200, "Real serial device new").await;
     Ok(RealSerialDevice {
       port,
       port_name,
@@ -47,15 +50,17 @@ impl RealSerialDevice {
 
 impl SerialDevice for RealSerialDevice {
   fn send_message(&mut self, message: &str) -> anyhow::Result<()> {
-    let msg = format!("{}\n", message);
+    let msg = format!("{}\r\n", message); // <-- use CRLF like Arduino IDE does
     println!(
       "Sending message {} to serial [{}] with baud rate {}...",
-      msg,
-      self.port_name,
-      self.baud_rate.to_string()
+      msg, self.port_name, self.baud_rate
     );
-    self.port.write_all(msg.as_bytes())?;
-    self.port.flush()?;
+    // Write slowly, byte by byte (imitates Serial Monitor pacing)
+    for byte in msg.bytes() {
+      self.port.write_all(&[byte])?;
+      std::thread::sleep(Duration::from_millis(2));
+    }
+    self.port.flush()?; // Ensure all data is sent
     Ok(())
   }
 }
