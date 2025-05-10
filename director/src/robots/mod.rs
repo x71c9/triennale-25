@@ -195,7 +195,7 @@ impl Robot {
       return;
     }
     utils::invoke_script(&utils::ScriptName::RobotInit, &[&self.name]);
-    utils::sleep(self.init_time, "Robot init").await;
+    // utils::sleep(self.init_time, "Robot init").await;
     crate::log_exit!("Robot init", &self.id);
   }
 
