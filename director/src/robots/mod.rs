@@ -319,7 +319,14 @@ impl Robot {
         &utils::ScriptName::RobotGetPosition,
         &[self.name],
       );
-      let number_value: f64 = response.unwrap().parse().expect("Cannot parse real pos");
+      let unwrapped = response.expect("");
+      let last_line = unwrapped
+        .lines()
+        .filter(|line| !line.trim().is_empty())
+        .last()
+        .expect("No lines in script output");
+      println!("Get real position response:\n{}", last_line);
+      let number_value: f64 = last_line.parse().expect("Cannot parse real pos");
       number_value
     };
     let mapped_position = map_position(pos);
