@@ -52,9 +52,9 @@ async fn main() {
   println!("Selected config: {:?}", CONFIG.get().unwrap());
 
   match args[1].as_str() {
-    "robots" | "r" => handle_robots(&args).await,
     "lights" | "l" => handle_lights(&args).await,
     "sparklings" | "s" => handle_sparklings(&args).await,
+    "robots" | "r" => handle_robots(&args).await,
     "installation" | "i" => handle_installation(&args).await,
     _ => eprintln!("Unknown command: {}", args[1]),
   }
@@ -62,45 +62,47 @@ async fn main() {
 
 async fn handle_robots(args: &[String]) {
   if args.len() < 4 {
-    eprintln!("Usage: cargo run robots <init/move> <ID> [<pos> <speed>]");
+    eprintln!("Usage: cargo run robots <ID> <init/move> [<pos> <speed>]");
     return;
   }
-  match args[2].as_str() {
+
+  let id = &args[2];
+  let command = &args[3];
+
+  match command.as_str() {
     "init" => {
-      let id = &args[3];
       println!("Initializing robot with ID: {}", id);
       let robot = robots::create(id);
       robot.init().await;
     }
     "move" => {
       if args.len() < 6 {
-        eprintln!("Usage: cargo run robots move <ID> <pos> <speed>");
+        eprintln!("Usage: cargo run robots <ID> move <pos> <speed>");
         return;
       }
-      let id = &args[3];
-      let pos = &args[4];
-      let speed = &args[5];
+      let pos_str = &args[4];
+      let speed_str = &args[5];
       println!(
         "Moving robot ID: {} to position: {} with speed: {}",
-        id, pos, speed
+        id, pos_str, speed_str
       );
       let robot = robots::create(id);
-      let pos: f64 = args[4].parse().expect("Invalid position value");
-      let speed: f64 = args[5].parse().expect("Invalid speed value");
+      let pos: f64 = pos_str.parse().expect("Invalid position value");
+      let speed: f64 = speed_str.parse().expect("Invalid speed value");
       robot.set_position(pos, speed).await;
     }
-    _ => eprintln!("Unknown robots subcommand: {}", args[2]),
+    _ => eprintln!("Unknown robots subcommand: {}", command),
   }
 }
 
 async fn handle_lights(args: &[String]) {
   if args.len() < 4 {
-    eprintln!("Usage: cargo run light <ON/OFF> <ID>");
+    eprintln!("Usage: cargo run lights <ID> <ON/OFF>");
     return;
   }
 
-  let state = &args[2];
-  let id = &args[3];
+  let id = &args[2];
+  let state = &args[3];
 
   match state.as_str() {
     "on" => {
@@ -119,12 +121,12 @@ async fn handle_lights(args: &[String]) {
 
 async fn handle_sparklings(args: &[String]) {
   if args.len() < 4 {
-    eprintln!("Usage: cargo run spark <ON/OFF> <ID>");
+    eprintln!("Usage: cargo run sparklings <ID> <ON/OFF>");
     return;
   }
 
-  let state = &args[2];
-  let id = &args[3];
+  let id = &args[2];
+  let state = &args[3];
 
   match state.as_str() {
     "on" => {
