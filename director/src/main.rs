@@ -165,12 +165,12 @@ async fn handle_sparklings(args: &[String]) {
     "on" => {
       println!("Turning sparkling {} for ID: {}", state, id);
       let sparkling = sparklings::create(id);
-      sparkling.turn_on();
+      sparkling.turn_on().await;
     }
     "off" => {
       println!("Turning sparkling {} for ID: {}", state, id);
       let sparkling = sparklings::create(id);
-      sparkling.turn_off();
+      sparkling.turn_off().await;
     }
     _ => eprintln!("Invalid state for spark: {}", state),
   }

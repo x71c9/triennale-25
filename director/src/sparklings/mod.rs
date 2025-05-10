@@ -1,6 +1,5 @@
 use crate::config::{self, ConfigParam};
 use crate::utils::{self, print_dry_run};
-use reqwest::blocking;
 
 const SPARKLING_SERVICE_IP: &str = "192.168.125.3";
 
@@ -31,20 +30,20 @@ impl SparklingManager {
   }
   pub async fn all_turn_on(&mut self) {
     crate::log_enter!("sparkling.all_turn_on", "");
-    self.sparkling_a.turn_on();
+    self.sparkling_a.turn_on().await;
     utils::sleep(2000, "SparklingManager all_turn_on").await;
-    self.sparkling_b.turn_on();
+    self.sparkling_b.turn_on().await;
     utils::sleep(2000, "SparklingManager all_turn_on").await;
-    self.sparkling_c.turn_on();
+    self.sparkling_c.turn_on().await;
     crate::log_exit!("sparkling.all_turn_on", "");
   }
   pub async fn all_turn_off(&mut self) {
     crate::log_enter!("sparkling.all_turn_off", "");
-    self.sparkling_a.turn_off();
+    self.sparkling_a.turn_off().await;
     utils::sleep(2000, "SparklingManager all_turn_off").await;
-    self.sparkling_b.turn_off();
+    self.sparkling_b.turn_off().await;
     utils::sleep(2000, "SparklingManager all_turn_off").await;
-    self.sparkling_c.turn_off();
+    self.sparkling_c.turn_off().await;
     crate::log_exit!("sparkling.all_turn_off", "");
   }
 }
@@ -66,28 +65,28 @@ impl Sparkling {
     return light;
   }
   pub async fn run_sparkling(&self) {
-    self.turn_on();
+    self.turn_on().await;
     utils::sleep(1000 * 10, "Sparkling run_sparkling").await;
-    self.turn_off();
+    self.turn_off().await;
   }
-  pub fn turn_on(&self) {
+  pub async fn turn_on(&self) {
     crate::log_enter!("sparkling.turn_on", self.name);
     if config::get(ConfigParam::DRYRUN) {
       print_dry_run(format!("SPARKLING [{}] turned ON", self.name).as_str());
       crate::log_exit!("sparkling.turn_on", self.name);
       return;
     }
-    invoke_service(self.service_name, "on");
+    invoke_service(self.service_name, "on").await;
     crate::log_exit!("sparkling.turn_on", self.name);
   }
-  pub fn turn_off(&self) {
+  pub async fn turn_off(&self) {
     crate::log_enter!("sparkling.turn_off", self.name);
     if config::get(ConfigParam::DRYRUN) {
       print_dry_run(format!("SPARKLING [{}] turned OFF", self.name).as_str());
       crate::log_exit!("sparkling.turn_off", self.name);
       return;
     }
-    invoke_service(self.service_name, "off");
+    invoke_service(self.service_name, "off").await;
     crate::log_exit!("sparkling.turn_off", self.name);
   }
   fn print(&self) {
@@ -95,17 +94,16 @@ impl Sparkling {
   }
 }
 
-fn invoke_service(path: &str, state: &str) {
+async fn invoke_service(path: &str, state: &str) {
   let url = format!("http://{}/{path}?state={state}", SPARKLING_SERVICE_IP);
-  let response =
-    blocking::get(&url).expect("SPARKLING SERVICE INVOKACTION FAILED");
+  let response = reqwest::get(&url).await.expect("SPARKLING SERVICE INVOCATION FAILED");
+
   if !response.status().is_success() {
-    panic!("Request failed with status: {}", response.status())
+    panic!("Request failed with status: {}", response.status());
   }
-  println!(
-    "Sparkling service returned: {}",
-    response.text().expect("Failed to read response body")
-  );
+
+  let body = response.text().await.expect("Failed to read response body");
+  println!("Sparkling service returned: {}", body);
 }
 
 pub fn create(id: &str) -> Sparkling {
