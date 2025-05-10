@@ -3,14 +3,20 @@
 
 DFRobot_GP8403 dac1(&Wire, 0x58);  // First DAC at address 0x58
 DFRobot_GP8403 dac2(&Wire, 0x5F);  // Second DAC at address 0x5F
-DFRobot_GP8403 dac3(&Wire, 0x5A);  // Second DAC at address 0x5F
+DFRobot_GP8403 dac3(&Wire, 0x5A);  // Third DAC at address 0x5A
 
-int voltageStep = 0;
+int dac_values[6] = {
+  1111, // Channel 1
+  2222, // Channel 2
+  3333, // Channel 3
+  4444, // Channel 4
+  5555, // Channel 5
+  6666  // Channel 6
+};
 
 void setup() {
-
   Serial.begin(115200);
-  while (!Serial);
+  while (!Serial);  // Wait for serial to be ready
 
   while (dac1.begin() != 0) {
     Serial.println("DAC1 (0x58) init error");
@@ -34,24 +40,23 @@ void setup() {
   dac2.setDACOutRange(dac2.eOutputRange10V);
   dac3.setDACOutRange(dac3.eOutputRange10V);
 
-  // Set voltages on DAC1 (0x58)
-  dac1.setDACOutVoltage(1000, 0);  // 1V on channel 0
-  dac1.setDACOutVoltage(7500, 1);   // 7.5V on channel 1
+  // Initialize all 6 outputs
+  updateAllDACOutputs();
+}
 
-  // Set voltages on DAC2 (0x5F)
-  dac2.setDACOutVoltage(9000, 0);   // 9V on channel 0
-  dac2.setDACOutVoltage(2000, 1);   // 2V on channel 1
-
-  // Set voltages on DAC3 (0x5A)
-  dac3.setDACOutVoltage(6767, 0);   // 6.76V on channel 0
-  dac3.setDACOutVoltage(1212, 1);   // 1.21V on channel 1
-
+void updateAllDACOutputs() {
+  dac1.setDACOutVoltage(dac_values[0], 0); // CH1
+  dac1.setDACOutVoltage(dac_values[1], 1); // CH2
+  dac2.setDACOutVoltage(dac_values[2], 0); // CH3
+  dac2.setDACOutVoltage(dac_values[3], 1); // CH4
+  dac3.setDACOutVoltage(dac_values[4], 0); // CH5
+  dac3.setDACOutVoltage(dac_values[5], 1); // CH6
 }
 
 void loop() {
   if (Serial.available()) {
     String input = Serial.readStringUntil('\n');
-    input.trim();  // remove leading/trailing whitespace
+    input.trim();
     input.toUpperCase();
 
     Serial.print("Received: ");
@@ -61,27 +66,25 @@ void loop() {
       int channel = input.substring(4, 5).toInt();
       int value = input.substring(6).toInt();
 
-      // Clamp the voltage value between 0 and 10000
+      // Clamp to safe range
       value = constrain(value, 0, 10000);
+
+      if (channel < 1 || channel > 6) {
+        Serial.println("Invalid channel. Use 1–6.");
+        return;
+      }
+
+      dac_values[channel - 1] = value;
 
       Serial.print("Parsed channel: ");
       Serial.print(channel);
       Serial.print(", value: ");
       Serial.println(value);
 
-      switch (channel) {
-        case 1: dac1.setDACOutVoltage(value, 0); break;
-        case 2: dac1.setDACOutVoltage(value, 1); break;
-        case 3: dac2.setDACOutVoltage(value, 0); break;
-        case 4: dac2.setDACOutVoltage(value, 1); break;
-        case 5: dac3.setDACOutVoltage(value, 0); break;
-        case 6: dac3.setDACOutVoltage(value, 1); break;
-        default:
-          Serial.println("Invalid channel. Use 1–6.");
-          return;
-      }
+      // Apply all 6 values every time
+      updateAllDACOutputs();
 
-      Serial.println("DAC value set successfully.");
+      Serial.println("All DAC values updated.");
     } else {
       Serial.println("Invalid command. Use: DIM <1–6> <0–10000>");
     }
