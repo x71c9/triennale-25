@@ -43,6 +43,8 @@ impl LightManager {
     light_manager.all_turn_on().await;
     utils::sleep(5000, "LightManager new").await;
     light_manager.all_turn_off().await;
+    utils::sleep(5000, "LightManager new").await;
+    light_manager.all_turn_on().await;
     return light_manager;
   }
 
@@ -56,7 +58,7 @@ impl LightManager {
     utils::sleep(2000, "LightManager all_turn_on").await;
     self.light_b.turn_on();
     utils::sleep(2000, "LightManager all_turn_on").await;
-    self.light_c.turn_on();
+    // self.light_c.turn_on();
     utils::sleep(2000, "LightManager all_turn_on").await;
     self.light_d.turn_on();
     utils::sleep(2000, "LightManager all_turn_on").await;

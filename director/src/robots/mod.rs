@@ -201,9 +201,9 @@ impl Robot {
 
   pub async fn start_buffering(self: &Arc<Self>) {
     // TODO remove
-    if self.id > 0 {
-      return;
-    }
+    // if self.id > 0 {
+    //   return;
+    // }
     crate::log_enter!("Robot start_buffering", self.id);
     // self.stop().await;
     {
@@ -305,7 +305,7 @@ impl Robot {
       }
       utils::sleep_silent(POSITION_INTERVAL_MS).await;
     }
-    println!("Loop stopped");
+    println!("Interpolation stopped");
     let mut p = self.position.write().await;
     *p = mapped_position;
     let after_position = *self.position.read().await;

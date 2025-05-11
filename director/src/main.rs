@@ -1,4 +1,5 @@
 use crate::utils::SerialDevice;
+
 use std::env;
 use std::sync::{Arc, Mutex};
 
