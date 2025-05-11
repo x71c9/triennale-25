@@ -101,7 +101,7 @@ impl RobotManager {
     tokio::join!(
       countdown(BUFFERING_TIME_MS),
       self.robot_a.start_buffering(),
-      self.robot_b.start_buffering(),
+      // self.robot_b.start_buffering(),
       self.robot_c.start_buffering(),
       self.robot_d.start_buffering(),
     );
@@ -200,12 +200,7 @@ impl Robot {
   }
 
   pub async fn start_buffering(self: &Arc<Self>) {
-    // TODO remove
-    // if self.id > 0 {
-    //   return;
-    // }
     crate::log_enter!("Robot start_buffering", self.id);
-    // self.stop().await;
     {
       let mut state = self.state.write().await;
       *state = RobotState::Buffering;
@@ -264,6 +259,10 @@ impl Robot {
   // }
 
   pub async fn set_position(self: &Arc<Self>, pos: f64, speed: f64) {
+    if self.name == "B"{
+      println!("ROBOT B - NOT MOVING");
+      return ();
+    }
     crate::log_enter!("Robot set_position", pos);
     // let current_position = *self.position.read().await;
     let current_position = self.get_real_position().await;
