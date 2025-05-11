@@ -431,18 +431,18 @@ fn get_max(values: Vec<u64>) -> u64 {
   return max;
 }
 
-async fn countdown(milliseconds: u64) {
-  println!("Srarting countdown milliseconds {}", milliseconds);
-  for remaining in (1..=milliseconds / 1000).rev() {
-    let minutes = remaining / 60;
-    let seconds = remaining % 60;
-    println!(
-      "T-00:{:02}:{:02} remaining to next process...",
-      minutes, seconds
-    );
-    utils::sleep_silent(1000).await;
-  }
-}
+// async fn countdown(milliseconds: u64) {
+//   println!("Srarting countdown milliseconds {}", milliseconds);
+//   for remaining in (1..=milliseconds / 1000).rev() {
+//     let minutes = remaining / 60;
+//     let seconds = remaining % 60;
+//     println!(
+//       "T-00:{:02}:{:02} remaining to next process...",
+//       minutes, seconds
+//     );
+//     utils::sleep_silent(1000).await;
+//   }
+// }
 
 async fn start_service(
   robot_a: Arc<Robot>,
