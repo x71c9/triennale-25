@@ -22,20 +22,25 @@ while true; do
   # Run the command in the background
   $cmd &
 
-  if [ $((RANDOM % 10)) -eq 0 ]; then
+  rand_val=$((RANDOM % 10))
+  echo "Sprinkler random value: $rand_val"
+  if [ "$rand_val" -eq 1 ]; then
     sprinkler_id=$(( (RANDOM % 3) + 1 ))
     scmd="cargo run s $sprinkler_id on --no-dry-run"
     echo -e "\n[$(date +'%H:%M:%S')] Running: $scmd"
+    $scmd
     sleep 20
     scmd="cargo run s $sprinkler_id off --no-dry-run"
     echo -e "\n[$(date +'%H:%M:%S')] Running: $scmd"
+    $scmd
   fi
 
   sleep_time=$(( (RANDOM % 30) + 30 ))
   echo "Sleeping for $sleep_time seconds..."
   for ((i=sleep_time; i>0; i--)); do
-    echo "Next command in %2d seconds..." "$i"
+    printf "Next command in %2d seconds...\r" "$i"
     sleep 1
   done
   echo -e "Launching next command...        "
 done
+
