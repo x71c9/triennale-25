@@ -101,7 +101,7 @@ impl RobotManager {
     tokio::join!(
       countdown(BUFFERING_TIME_MS),
       self.robot_a.start_buffering(),
-      // self.robot_b.start_buffering(),
+      self.robot_b.start_buffering(),
       self.robot_c.start_buffering(),
       self.robot_d.start_buffering(),
     );
@@ -214,6 +214,7 @@ impl Robot {
         break;
       }
       let delay = get_buffering_delay();
+      println!("BUffering delay for robot {}: {}", self.name, delay);
       utils::sleep(delay, "Robot start_buffering").await;
       let random_position = random_normal_value() * 5.0;
       let random_speed = random_normal_value();
