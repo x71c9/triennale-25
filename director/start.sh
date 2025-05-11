@@ -23,7 +23,7 @@ while true; do
   $cmd &
 
   rand_val=$((RANDOM % 10))
-  echo "Sprinkler random value: $rand_val"
+  echo "-- Sprinkler random value: $rand_val"
   if [ "$rand_val" -eq 1 ]; then
     sprinkler_id=$(( (RANDOM % 3) + 1 ))
     scmd="cargo run s $sprinkler_id on --no-dry-run"
