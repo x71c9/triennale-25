@@ -573,6 +573,7 @@ pub fn store_position(robot_id: &str, position: f64) -> io::Result<()> {
   let file_path = format!("/tmp/robot-position-{}.txt", robot_id);
   let mut file = File::create(&file_path)?;
   write!(file, "{}", position)?;
+  println!("Stored position {} in file {}", position, file_path);
   Ok(())
 }
 
