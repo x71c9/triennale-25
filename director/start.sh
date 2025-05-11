@@ -4,11 +4,8 @@
 trap 'echo -e "\nStopping..."; jobs -p | xargs -r kill; exit' INT
 
 cargo run robots 2 init --no-dry-run
-sleep 60
 cargo run robots 3 init --no-dry-run
-sleep 60
 cargo run robots 4 init --no-dry-run
-sleep 60
 
 while true; do
   # Generate random robot_id: 2, 3, or 4
