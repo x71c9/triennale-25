@@ -339,7 +339,7 @@ impl Robot {
     *p = mapped_position;
     let after_position = *self.position.read().await;
     println!("Current position is {}", after_position);
-    store_position(&self.name, after_position).expect("Cannot store file");
+    store_position(&self.name, mapped_position).expect("Cannot store file");
     crate::log_exit!("Robot set_position", mapped_position);
   }
 
