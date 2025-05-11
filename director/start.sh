@@ -29,11 +29,10 @@ while true; do
     echo -e "\n[$(date +'%H:%M:%S')] Running: $scmd"
   fi
 
-  # Sleep between 15 and 30 seconds with countdown
-  sleep_time=$(( (RANDOM % 16) + 15 ))
+  sleep_time=$(( (RANDOM % 30) + 30 ))
   echo "Sleeping for $sleep_time seconds..."
   for ((i=sleep_time; i>0; i--)); do
-    printf "Next command in %2d seconds..." "$i"
+    echo "Next command in %2d seconds..." "$i"
     sleep 1
   done
   echo -e "Launching next command...        "
