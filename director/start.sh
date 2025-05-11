@@ -1,5 +1,7 @@
 #!/bin/bash
 
+HOME=/home/dafne
+
 # Trap SIGINT (Ctrl+C) to kill background jobs
 trap 'echo -e "\nStopping..."; jobs -p | xargs -r kill; exit' INT
 
