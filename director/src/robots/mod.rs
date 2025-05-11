@@ -1,7 +1,10 @@
 use rand::Rng;
 use rosc::{encoder, OscMessage, OscPacket, OscType};
 use std::fmt;
+use std::fs::{self, File};
+use std::io::{self, Write};
 use std::net::UdpSocket;
+use std::path::Path;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -173,12 +176,14 @@ impl Robot {
     speed_constant: u64,
   ) -> Self {
     crate::log_enter!("Robot new", id);
+    let position = read_position(name).expect("Cannot read from file");
     let robot = Robot {
       id,
       name,
       init_time,
       state: RwLock::new(RobotState::Buffering),
-      position: RwLock::new(0.0),
+      // position: RwLock::new(0.0),
+      position: RwLock::new(position),
       speed_constant,
     };
     crate::log_exit!("Robot new", id);
@@ -334,6 +339,7 @@ impl Robot {
     *p = mapped_position;
     let after_position = *self.position.read().await;
     println!("Current position is {}", after_position);
+    store_position(&self.name, after_position).expect("Cannot store file");
     crate::log_exit!("Robot set_position", mapped_position);
   }
 
@@ -455,7 +461,7 @@ async fn start_service(
   socket
     .set_broadcast(true)
     .expect("could not enable broadcast");
-
+  
   loop {
     let positions = vec![
       *robot_a.position.read().await,
@@ -543,4 +549,21 @@ fn get_syncing_delay() -> u64 {
 
 fn map_position(value: f64) -> f64 {
   (value / 5.0).clamp(0.0, 1.0)
+}
+
+fn store_position(robot_name: &str, position: f64) -> io::Result<()> {
+  let file_path = format!("/tmp/robot-position-{}.txt", robot_name);
+  let path = Path::new(&file_path);
+  let mut file = File::create(&path)?;
+  write!(file, "{}", position)?;
+  Ok(())
+}
+
+fn read_position(robot_name: &str) -> io::Result<f64> {
+  let file_path = format!("/tmp/robot-position-{}.txt", robot_name);
+  let content = fs::read_to_string(Path::new(&file_path))?;
+  let position: f64 = content.trim().parse().map_err(|e| {
+    io::Error::new(io::ErrorKind::InvalidData, format!("Parse error: {}", e))
+  })?;
+  Ok(position)
 }
