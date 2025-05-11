@@ -334,12 +334,12 @@ impl Robot {
       }
       utils::sleep_silent(POSITION_INTERVAL_MS).await;
     }
+    store_position(&self.name, mapped_position).expect("Cannot store file");
     println!("Interpolation stopped");
     let mut p = self.position.write().await;
     *p = mapped_position;
     let after_position = *self.position.read().await;
     println!("Current position is {}", after_position);
-    store_position(&self.name, mapped_position).expect("Cannot store file");
     crate::log_exit!("Robot set_position", mapped_position);
   }
 
