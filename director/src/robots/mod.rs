@@ -99,7 +99,7 @@ impl RobotManager {
   pub async fn start_buffering(&mut self) {
     crate::log_enter!("RobotManager start_buffering", "");
     tokio::join!(
-      countdown(BUFFERING_TIME_MS),
+      // countdown(BUFFERING_TIME_MS),
       self.robot_a.start_buffering(),
       self.robot_b.start_buffering(),
       self.robot_c.start_buffering(),
@@ -115,7 +115,7 @@ impl RobotManager {
     let max_delay = get_max(vec![delay_a, delay_b, delay_c, delay_d]);
     println!("Start scanning max delay in milliseconds: {}", max_delay);
     tokio::join!(
-      countdown(SCANNING_TIME_MS + max_delay),
+      // countdown(SCANNING_TIME_MS + max_delay),
       self.robot_a.start_scanning(delay_a),
       self.robot_b.start_scanning(delay_b),
       self.robot_c.start_scanning(delay_c),
@@ -130,7 +130,7 @@ impl RobotManager {
     let max_delay = get_max(vec![delay_a, delay_b, delay_c, delay_d]);
     println!("Start syncing max delay in milliseconds: {}", max_delay);
     tokio::join!(
-      countdown(SYNCING_TIME_MS + max_delay),
+      // countdown(SYNCING_TIME_MS + max_delay),
       self.robot_a.start_syncing(delay_a),
       self.robot_b.start_syncing(delay_b),
       self.robot_c.start_syncing(delay_c),
