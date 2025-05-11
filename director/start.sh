@@ -23,11 +23,11 @@ while true; do
   $cmd &
 
   if [ $((RANDOM % 10)) -eq 0 ]; then
-    robot_id=$(( (RANDOM % 3) + 1 ))
-    scmd="cargo run s $sprikler_id on --no-dry-run"
+    sprinkler_id=$(( (RANDOM % 3) + 1 ))
+    scmd="cargo run s $sprinkler_id on --no-dry-run"
     echo -e "\n[$(date +'%H:%M:%S')] Running: $scmd"
     sleep 20
-    scmd="cargo run s $sprikler_id off --no-dry-run"
+    scmd="cargo run s $sprinkler_id off --no-dry-run"
     echo -e "\n[$(date +'%H:%M:%S')] Running: $scmd"
   fi
 
