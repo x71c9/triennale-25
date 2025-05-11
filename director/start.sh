@@ -3,6 +3,10 @@
 # Trap SIGINT (Ctrl+C) to kill background jobs
 trap 'echo -e "\nStopping..."; jobs -p | xargs -r kill; exit' INT
 
+cargo run init 2 init --no-dry-run
+cargo run init 3 init --no-dry-run
+cargo run init 4 init --no-dry-run
+
 while true; do
   # Generate random robot_id: 2, 3, or 4
   robot_id=$(( (RANDOM % 3) + 2 ))
@@ -15,6 +19,15 @@ while true; do
 
   # Run the command in the background
   $cmd &
+
+  if [ $((RANDOM % 10)) -eq 0 ]; then
+    robot_id=$(( (RANDOM % 3) + 1 ))
+    scmd="cargo run sparkling $sparkling_id on --no-dry-run"
+    echo -e "\n[$(date +'%H:%M:%S')] Running: $scmd"
+    sleep 20
+    scmd="cargo run sparkling $sparkling_id off --no-dry-run"
+    echo -e "\n[$(date +'%H:%M:%S')] Running: $scmd"
+  fi
 
   # Sleep between 15 and 30 seconds with countdown
   sleep_time=$(( (RANDOM % 16) + 15 ))
