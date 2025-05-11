@@ -461,7 +461,7 @@ async fn start_service(
   socket
     .set_broadcast(true)
     .expect("could not enable broadcast");
-  
+
   loop {
     let positions = vec![
       *robot_a.position.read().await,
@@ -551,17 +551,45 @@ fn map_position(value: f64) -> f64 {
   (value / 5.0).clamp(0.0, 1.0)
 }
 
-fn store_position(robot_name: &str, position: f64) -> io::Result<()> {
-  let file_path = format!("/tmp/robot-position-{}.txt", robot_name);
-  let path = Path::new(&file_path);
-  let mut file = File::create(&path)?;
+// fn store_position(robot_name: &str, position: f64) -> io::Result<()> {
+//   let file_path = format!("/tmp/robot-position-{}.txt", robot_name);
+//   let path = Path::new(&file_path);
+//   let mut file = File::create(&path)?;
+//   write!(file, "{}", position)?;
+//   Ok(())
+// }
+
+// fn read_position(robot_name: &str) -> io::Result<f64> {
+//   let file_path = format!("/tmp/robot-position-{}.txt", robot_name);
+//   let content = fs::read_to_string(Path::new(&file_path))?;
+//   let position: f64 = content.trim().parse().map_err(|e| {
+//     io::Error::new(io::ErrorKind::InvalidData, format!("Parse error: {}", e))
+//   })?;
+//   Ok(position)
+// }
+
+/// Writes the f64 position value for a given robot ID into `/tmp/robot-position-<id>.txt`
+pub fn store_position(robot_id: &str, position: f64) -> io::Result<()> {
+  let file_path = format!("/tmp/robot-position-{}.txt", robot_id);
+  let mut file = File::create(&file_path)?;
   write!(file, "{}", position)?;
   Ok(())
 }
 
-fn read_position(robot_name: &str) -> io::Result<f64> {
-  let file_path = format!("/tmp/robot-position-{}.txt", robot_name);
-  let content = fs::read_to_string(Path::new(&file_path))?;
+/// Reads the f64 position value for a given robot ID from `/tmp/robot-position-<id>.txt`
+/// If the file does not exist, it creates it with default value 0.0.
+pub fn read_position(robot_id: &str) -> io::Result<f64> {
+  let file_path = format!("/tmp/robot-position-{}.txt", robot_id);
+  let path = Path::new(&file_path);
+
+  if !path.exists() {
+    // Create the file with default value 0.0
+    let mut file = File::create(&path)?;
+    write!(file, "0.0")?;
+    return Ok(0.0);
+  }
+
+  let content = fs::read_to_string(path)?;
   let position: f64 = content.trim().parse().map_err(|e| {
     io::Error::new(io::ErrorKind::InvalidData, format!("Parse error: {}", e))
   })?;
