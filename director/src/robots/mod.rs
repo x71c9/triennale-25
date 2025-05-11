@@ -91,7 +91,7 @@ impl RobotManager {
   pub async fn initialize_all(&self) {
     crate::log_enter!("RobotManager initialize_all", "");
     self.robot_a.init().await;
-    self.robot_b.init().await;
+    // self.robot_b.init().await;
     self.robot_c.init().await;
     self.robot_d.init().await;
     crate::log_exit!("RobotManager initialize_all", "");
