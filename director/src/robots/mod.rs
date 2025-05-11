@@ -206,15 +206,15 @@ impl Robot {
       *state = RobotState::Buffering;
     }
     let start_time = std::time::Instant::now();
-    loop {
+    for _ in 0..2 {
       if *self.state.read().await != RobotState::Buffering {
         break;
       }
-      if start_time.elapsed().as_secs() >= BUFFERING_TIME_MS / 1000 {
+      if start_time.elapsed().as_millis() as u64 >= BUFFERING_TIME_MS {
         break;
       }
       let delay = get_buffering_delay();
-      println!("BUffering delay for robot {}: {}", self.name, delay);
+      println!("Buffering delay for robot {}: {}", self.name, delay);
       utils::sleep(delay, "Robot start_buffering").await;
       let random_position = random_normal_value() * 5.0;
       let random_speed = random_normal_value();
@@ -222,6 +222,30 @@ impl Robot {
     }
     crate::log_exit!("Robot start_buffering", self.id);
   }
+
+  // pub async fn start_buffering(self: &Arc<Self>) {
+  //   crate::log_enter!("Robot start_buffering", self.id);
+  //   {
+  //     let mut state = self.state.write().await;
+  //     *state = RobotState::Buffering;
+  //   }
+  //   let start_time = std::time::Instant::now();
+  //   loop {
+  //     if *self.state.read().await != RobotState::Buffering {
+  //       break;
+  //     }
+  //     if start_time.elapsed().as_secs() >= BUFFERING_TIME_MS / 1000 {
+  //       break;
+  //     }
+  //     let delay = get_buffering_delay();
+  //     println!("BUffering delay for robot {}: {}", self.name, delay);
+  //     utils::sleep(delay, "Robot start_buffering").await;
+  //     let random_position = random_normal_value() * 5.0;
+  //     let random_speed = random_normal_value();
+  //     self.set_position(random_position, random_speed).await;
+  //   }
+  //   crate::log_exit!("Robot start_buffering", self.id);
+  // }
 
   pub async fn start_scanning(self: &Arc<Self>, delay: u64) {
     crate::log_enter!("Robot start_scanning", self.id);
@@ -260,7 +284,7 @@ impl Robot {
   // }
 
   pub async fn set_position(self: &Arc<Self>, pos: f64, speed: f64) {
-    if self.name == "B"{
+    if self.name == "B" {
       println!("ROBOT B - NOT MOVING");
       return ();
     }
