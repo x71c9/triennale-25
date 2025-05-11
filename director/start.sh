@@ -3,11 +3,11 @@
 # Trap SIGINT (Ctrl+C) to kill background jobs
 trap 'echo -e "\nStopping..."; jobs -p | xargs -r kill; exit' INT
 
-cargo run robots init 2 init --no-dry-run
+cargo run robots 2 init --no-dry-run
 sleep 60
-cargo run robots init 3 init --no-dry-run
+cargo run robots 3 init --no-dry-run
 sleep 60
-cargo run robots init 4 init --no-dry-run
+cargo run robots 4 init --no-dry-run
 sleep 60
 
 while true; do
