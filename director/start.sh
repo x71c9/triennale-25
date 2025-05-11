@@ -3,11 +3,11 @@
 # Trap SIGINT (Ctrl+C) to kill background jobs
 trap 'echo -e "\nStopping..."; jobs -p | xargs -r kill; exit' INT
 
-cargo run init 2 init --no-dry-run
+cargo run robots init 2 init --no-dry-run
 sleep 60
-cargo run init 3 init --no-dry-run
+cargo run robots init 3 init --no-dry-run
 sleep 60
-cargo run init 4 init --no-dry-run
+cargo run robots init 4 init --no-dry-run
 sleep 60
 
 while true; do
@@ -25,10 +25,10 @@ while true; do
 
   if [ $((RANDOM % 10)) -eq 0 ]; then
     robot_id=$(( (RANDOM % 3) + 1 ))
-    scmd="cargo run sparkling $sparkling_id on --no-dry-run"
+    scmd="cargo run sparklings $sparkling_id on --no-dry-run"
     echo -e "\n[$(date +'%H:%M:%S')] Running: $scmd"
     sleep 20
-    scmd="cargo run sparkling $sparkling_id off --no-dry-run"
+    scmd="cargo run sparklings $sparkling_id off --no-dry-run"
     echo -e "\n[$(date +'%H:%M:%S')] Running: $scmd"
   fi
 
@@ -36,8 +36,8 @@ while true; do
   sleep_time=$(( (RANDOM % 16) + 15 ))
   echo "Sleeping for $sleep_time seconds..."
   for ((i=sleep_time; i>0; i--)); do
-    printf "\rNext command in %2d seconds..." "$i"
+    printf "Next command in %2d seconds..." "$i"
     sleep 1
   done
-  echo -e "\rLaunching next command...        "
+  echo -e "Launching next command...        "
 done
