@@ -12,7 +12,7 @@ cargo run robots 4 init --no-dry-run
 while true; do
   # Generate random robot_id: 2, 3, or 4
   robot_id=$(( (RANDOM % 3) + 2 ))
-  move_dir=$(( RANDOM % 6 ))
+  move_dir=$(echo "$(( RANDOM % 5 )).5") # from .5 to 4.5
   move_amount=$(awk -v min=0.1 -v max=1 'BEGIN{srand(); printf "%.2f\n", min + rand() * (max - min)}')
 
   # Build and display the command
