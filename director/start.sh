@@ -5,56 +5,69 @@ HOME=/home/dafne
 # Trap SIGINT (Ctrl+C) to kill background jobs
 trap 'echo -e "\nStopping..."; jobs -p | xargs -r kill; exit' INT
 
+log() {
+  # echo -e "[$(date +'%H:%M:%S')] $1"
+  echo -e "$1"
+}
+
+countdown() {
+  local seconds=$1
+  local msg=$2
+  for ((i=seconds; i>0; i--)); do
+    echo "[$(date +'%H:%M:%S')] $msg in $i seconds..."
+    sleep 1
+  done
+}
+
+log "Initializing robots..."
 cargo run robots 2 init --no-dry-run
 cargo run robots 3 init --no-dry-run
 cargo run robots 4 init --no-dry-run
 
+log "Entering main loop..."
 while true; do
   # Generate random robot_id: 2, 3, or 4
   robot_id=$(( (RANDOM % 3) + 2 ))
-  move_dir=$(echo "$(( RANDOM % 5 )).5") # from .5 to 4.5
+  # move_position=$(echo "$(( RANDOM % 5 )).5") # from .5 to 4.5
+  move_position=$(awk -v min=0.5 -v max=4.5 'BEGIN{srand(); printf "%.2f\n", min + rand() * (max - min)}')
   move_amount=$(awk -v min=0.1 -v max=1 'BEGIN{srand(); printf "%.2f\n", min + rand() * (max - min)}')
 
-  # Build and display the command
-  cmd="cargo run robots $robot_id move $move_dir $move_amount --no-dry-run"
-  echo -e "\n[$(date +'%H:%M:%S')] Running: $cmd"
-
-  # Run the command in the background
+  cmd="cargo run robots $robot_id move $move_position $move_amount --no-dry-run"
+  log "Running: $cmd"
   $cmd &
+  log "Started: $cmd"
 
   rand_val=$((RANDOM % 10))
-  echo "-- Sprinkler random value: $rand_val. Activating if -eq 1"
+  log "---------------- Sprinkler random value: $rand_val. Activating if -eq 1"
+
   if [ "$rand_val" -eq 1 ]; then
-    echo "Sleeping for 4 minutes before coordinated robot move..."
-    sleep 240
+    log "Preparing for [SCANNING] coordinated robot move..."
+    countdown 240 "[SCANNING] Coordinated robot move starts"
 
     for rid in 2 3 4; do
       move_cmd="cargo run robots $rid move 4.5 1.0 --no-dry-run"
-      echo -e "\n[$(date +'%H:%M:%S')] Moving robot $rid to position 4.5"
+      log "[SCANNING] Moving robot $rid to position 4.5"
       $move_cmd
-      echo "Sleeping 30 seconds before next robot..."
-      sleep 30
+      log "[SCANNING] Finished moving robot $rid"
+      countdown 30 "[SCANNING] Next robot move"
     done
 
-    echo "Sleeping for 2 minutes before coordinated robot move..."
-    sleep 120
+    log "[SCANNING] Waiting before sprinkler activation..."
+    countdown 120 "[SCANNING] Sprinkler activation"
 
     sprinkler_id=$(( (RANDOM % 3) + 1 ))
-    scmd="cargo run s $sprinkler_id on --no-dry-run"
-    echo -e "\n[$(date +'%H:%M:%S')] Running: $scmd"
-    $scmd
-    sleep 20
-    scmd="cargo run s $sprinkler_id off --no-dry-run"
-    echo -e "\n[$(date +'%H:%M:%S')] Running: $scmd"
-    $scmd
+    scmd_on="cargo run s $sprinkler_id on --no-dry-run"
+    log "[WATER] Running: $scmd_on"
+    $scmd_on
+    countdown 20 "[WATER] Sprinkler off"
+
+    scmd_off="cargo run s $sprinkler_id off --no-dry-run"
+    log "[WATER] Running: $scmd_off"
+    $scmd_off
   fi
 
   sleep_time=$(( (RANDOM % 30) + 30 ))
-  echo "Sleeping for $sleep_time seconds..."
-  for ((i=sleep_time; i>0; i--)); do
-    printf "Next command in %2d seconds...\r" "$i"
-    sleep 1
-  done
-  echo -e "Launching next command...        "
+  log "Sleeping for $sleep_time seconds..."
+  countdown $sleep_time "Next command"
 done
 
