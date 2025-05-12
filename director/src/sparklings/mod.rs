@@ -96,7 +96,9 @@ impl Sparkling {
 
 async fn invoke_service(path: &str, state: &str) {
   let url = format!("http://{}/{path}?state={state}", SPARKLING_SERVICE_IP);
-  let response = reqwest::get(&url).await.expect("SPARKLING SERVICE INVOCATION FAILED");
+  let response = reqwest::get(&url)
+    .await
+    .expect("SPARKLING SERVICE INVOCATION FAILED");
 
   if !response.status().is_success() {
     panic!("Request failed with status: {}", response.status());

@@ -1,4 +1,5 @@
 use crate::utils::SerialDevice;
+use tokio::time::{Duration};
 
 use std::env;
 use std::sync::{Arc, Mutex};
@@ -74,6 +75,12 @@ async fn handle_robots(args: &[String]) {
 
   match command.as_str() {
     "init" => {
+      tokio::spawn(async {
+        let init_seconds = 90;
+        tokio::time::sleep(Duration::from_secs(init_seconds)).await;
+        eprintln!("Init timeout reached. Exiting...");
+        std::process::exit(1);
+      });
       println!("Initializing robot with ID: {}", id);
       let robot_manager = robots::RobotManager::new().await;
       let robot = match id.as_str() {
@@ -97,6 +104,12 @@ async fn handle_robots(args: &[String]) {
         "Moving robot ID: {} to position: {} with speed: {}",
         id, pos_str, speed_str
       );
+      tokio::spawn(async {
+        let move_seconds = 60;
+        tokio::time::sleep(Duration::from_secs(move_seconds)).await;
+        eprintln!("Move timeout reached. Exiting...");
+        std::process::exit(1);
+      });
       let robot_manager = robots::RobotManager::new().await;
       let robot = match id.as_str() {
         "1" => robot_manager.robot_b,
@@ -128,14 +141,19 @@ async fn handle_lights(args: &[String]) {
   let serial_device: Arc<Mutex<dyn SerialDevice>> =
     if config::get(config::ConfigParam::DRYRUN) {
       Arc::new(Mutex::new(
-        utils::MockSerialDevice::new(lights::LIGHT_SERIAL_PORT_NAME, lights::LIGHT_SERIAL_BAUD)
-          .expect("Cannot initialize MockSerialDevice"),
+        utils::MockSerialDevice::new(
+          lights::LIGHT_SERIAL_PORT_NAME,
+          lights::LIGHT_SERIAL_BAUD,
+        )
+        .expect("Cannot initialize MockSerialDevice"),
       ))
     } else {
-      let real =
-        utils::RealSerialDevice::new(lights::LIGHT_SERIAL_PORT_NAME, lights::LIGHT_SERIAL_BAUD)
-          .await
-          .expect("Cannot initialize RealSerialDevice");
+      let real = utils::RealSerialDevice::new(
+        lights::LIGHT_SERIAL_PORT_NAME,
+        lights::LIGHT_SERIAL_BAUD,
+      )
+      .await
+      .expect("Cannot initialize RealSerialDevice");
       Arc::new(Mutex::new(real))
     };
   match state.as_str() {
