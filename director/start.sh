@@ -29,7 +29,7 @@ while true; do
     sleep 240
 
     for rid in 2 3 4; do
-      move_cmd="cargo run robots $rid move 0 4.5 --no-dry-run"
+      move_cmd="cargo run robots $rid move 4.5 1.0 --no-dry-run"
       echo -e "\n[$(date +'%H:%M:%S')] Moving robot $rid to position 4.5"
       $move_cmd
       echo "Sleeping 30 seconds before next robot..."
