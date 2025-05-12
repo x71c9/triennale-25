@@ -42,12 +42,12 @@ while true; do
 
   if [ "$rand_val" -eq 1 ]; then
     log "Preparing for [SCANNING] coordinated robot move..."
-    countdown 240 "[SCANNING] Coordinated robot move starts"
+    countdown 60 "[SCANNING] Coordinated robot move starts"
 
     for rid in 2 3 4; do
       move_cmd="cargo run robots $rid move 4.5 1.0 --no-dry-run"
       log "[SCANNING] Moving robot $rid to position 4.5"
-      $move_cmd
+      $move_cmd &
       log "[SCANNING] Finished moving robot $rid"
       countdown 30 "[SCANNING] Next robot move"
     done
