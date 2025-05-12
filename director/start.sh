@@ -26,6 +26,14 @@ cargo run robots 4 init --no-dry-run
 
 log "Entering main loop..."
 while true; do
+
+  current_hour=$(date +%H)
+  if (( current_hour < 8 || current_hour >= 21 )); then
+    log "Out of working hours (08:00-21:00). Sleeping 1 hour..."
+    sleep 60 * 60
+    continue
+  fi
+
   # Generate random robot_id: 2, 3, or 4
   robot_id=$(( (RANDOM % 3) + 2 ))
   # move_position=$(echo "$(( RANDOM % 5 )).5") # from .5 to 4.5
