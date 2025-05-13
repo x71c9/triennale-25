@@ -2,6 +2,8 @@
 
 HOME=/home/dafne
 
+SPARKLING_TIME=60
+
 # Trap SIGINT (Ctrl+C) to kill background jobs
 trap 'echo -e "\nStopping..."; jobs -p | xargs -r kill; exit' INT
 
@@ -14,7 +16,8 @@ countdown() {
   local seconds=$1
   local msg=$2
   for ((i=seconds; i>0; i--)); do
-    echo "[$(date +'%H:%M:%S')] $msg in $i seconds..."
+    # echo "[$(date +'%H:%M:%S')] $msg in $i seconds..."
+    echo "$msg in $i seconds..."
     sleep 1
   done
 }
@@ -67,7 +70,7 @@ while true; do
     scmd_on="cargo run s $sprinkler_id on --no-dry-run"
     log "[WATER] Running: $scmd_on"
     $scmd_on
-    countdown 20 "[WATER] Sprinkler off"
+    countdown $SPARKLING_TIME "[WATER] Sprinkler off"
 
     scmd_off="cargo run s $sprinkler_id off --no-dry-run"
     log "[WATER] Running: $scmd_off"

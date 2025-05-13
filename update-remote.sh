@@ -23,6 +23,7 @@ ssh "${REMOTE_USER}@${REMOTE_HOST}" bash << EOF
   set -e
   echo "Pulling latest changes in $REMOTE_PATH..."
   cd "$REMOTE_PATH"
+  git reset --hard
   git pull --recurse-submodules
   git submodule update --init --recursive
   cd "$REMOTE_PATH/robotics"
