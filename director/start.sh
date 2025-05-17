@@ -4,6 +4,25 @@ HOME=/home/dafne
 
 SPARKLING_TIME=60
 
+# TODO Remove after Robots are fixed
+while true; do
+  echo "[$(date)] Turning ON s1 and s2..."
+  curl "http://192.168.125.3/s1?state=on"
+  curl "http://192.168.125.3/s2?state=on"
+
+  echo "[$(date)] Waiting 60 seconds with relays ON..."
+  sleep $SPARKLING_TIME
+
+  echo "[$(date)] Turning OFF s1 and s2..."
+  curl "http://192.168.125.3/s1?state=off"
+  curl "http://192.168.125.3/s2?state=off"
+
+  # Wait the remaining time to make it 10 minutes total (600 - 60 = 540 seconds)
+  echo "[$(date)] Waiting 540 seconds before next cycle..."
+  sleep 540
+done
+
+
 # Trap SIGINT (Ctrl+C) to kill background jobs
 trap 'echo -e "\nStopping..."; jobs -p | xargs -r kill; exit' INT
 
