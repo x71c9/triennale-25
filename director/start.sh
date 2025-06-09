@@ -7,6 +7,7 @@ SPARKLING_TIME=60
 # TODO Remove after Robots are fixed
 while true; do
   echo "[$(date)] Turning ON s1 and s2..."
+  curl "http://192.168.125.3/s0?state=on"
   curl "http://192.168.125.3/s1?state=on"
   curl "http://192.168.125.3/s2?state=on"
 
@@ -14,6 +15,7 @@ while true; do
   sleep $SPARKLING_TIME
 
   echo "[$(date)] Turning OFF s1 and s2..."
+  curl "http://192.168.125.3/s0?state=off"
   curl "http://192.168.125.3/s1?state=off"
   curl "http://192.168.125.3/s2?state=off"
 
