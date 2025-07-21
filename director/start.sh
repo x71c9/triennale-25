@@ -2,7 +2,7 @@
 
 HOME=/home/dafne
 
-SPARKLING_TIME=60
+SPARKLING_TIME=45
 
 # TODO Remove after Robots are fixed
 while true; do
@@ -19,9 +19,9 @@ while true; do
   curl "http://192.168.125.3/s1?state=off"
   curl "http://192.168.125.3/s2?state=off"
 
-  # Wait the remaining time to make it 10 minutes total (600 - 60 = 540 seconds)
+  # Wait the remaining time to make it 10 minutes total (600 - 45 = 555 seconds)
   echo "[$(date)] Waiting 540 seconds before next cycle..."
-  sleep 540
+  sleep 555
 done
 
 
