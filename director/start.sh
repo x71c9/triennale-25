@@ -2,7 +2,7 @@
 
 HOME=/home/dafne
 
-SPARKLING_TIME=45
+SPARKLING_TIME=20
 WAIT_TIME=$((600 - SPARKLING_TIME))
 
 # TODO Remove after Robots are fixed
