@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { margin: 0; padding: 0; background: #000; overflow-x: hidden; }
+        .container { 
+            display: flex; 
+            height: 100vh; 
+            width: 100vw; 
+        }
+        .column { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        .camera-stream { 
+            flex: 1; 
+            width: 100%; 
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="column">
+            <img class="camera-stream" src="http://localhost:8080/stream" alt="Camera 1">
+            <img class="camera-stream" src="http://localhost:8081/stream" alt="Camera 2">
+            <img class="camera-stream" src="http://localhost:8082/stream" alt="Camera 3">
+            <img class="camera-stream" src="http://localhost:8083/stream" alt="Camera 4">
+        </div>
+        <div class="column">
+            <img class="camera-stream" src="http://localhost:8084/stream" alt="Camera 5">
+            <img class="camera-stream" src="http://localhost:8085/stream" alt="Camera 6">
+            <img class="camera-stream" src="http://localhost:8086/stream" alt="Camera 7">
+            <img class="camera-stream" src="http://localhost:8087/stream" alt="Camera 8">
+        </div>
+    </div>
+</body>
+</html>
