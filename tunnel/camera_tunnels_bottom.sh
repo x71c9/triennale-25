@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 DAFNE_MASTER="dafne@100.99.169.60"
 

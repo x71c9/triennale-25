@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Camera Stream Viewer</title>
+    <style>
+        body { 
+            margin: 0; 
+            padding: 20px; 
+            background: #000; 
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .camera-container { 
+            max-width: 80vw;
+            max-height: 70vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .camera-stream { 
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border: 2px solid #333;
+            border-radius: 8px;
+        }
+        .error {
+            color: #ff6b6b;
+            text-align: center;
+            padding: 20px;
+        }
+        .camera-selector {
+            margin-bottom: 20px;
+        }
+        select {
+            padding: 8px;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Camera Stream Viewer</h1>
+        <div class="camera-selector">
+            <label for="camera-select">Camera:</label>
+            <select id="camera-select">
+                <option value="1">Camera 1 (Side - Pi .96)</option>
+                <option value="2">Camera 2 (Bottom - Pi .96)</option>
+                <option value="3">Camera 3 (Side - Pi .97)</option>
+                <option value="4">Camera 4 (Bottom - Pi .97)</option>
+                <option value="5">Camera 5 (Side - Pi .98)</option>
+                <option value="6">Camera 6 (Bottom - Pi .98)</option>
+                <option value="7">Camera 7 (Side - Pi .99)</option>
+                <option value="8">Camera 8 (Bottom - Pi .99)</option>
+            </select>
+        </div>
+        <div id="camera-info"></div>
+    </div>
+    <div class="camera-container">
+        <img id="camera-stream" class="camera-stream" alt="Camera Stream">
+    </div>
+
+    <script>
+        const cameraSelect = document.getElementById('camera-select');
+        const cameraStream = document.getElementById('camera-stream');
+        const cameraInfo = document.getElementById('camera-info');
+
+        const _getCameraPort = (cameraNum) => {
+            const ports = {
+                '1': 8080, '2': 8081, '3': 8082, '4': 8083,
+                '5': 8084, '6': 8085, '7': 8086, '8': 8087
+            };
+            return ports[cameraNum];
+        };
+
+        const _updateCamera = () => {
+            const cameraNum = cameraSelect.value;
+            const port = _getCameraPort(cameraNum);
+            const streamUrl = `http://localhost:${port}/stream`;
+            
+            cameraStream.src = streamUrl;
+            cameraInfo.innerHTML = `Camera ${cameraNum} - Port ${port}<br><small>${streamUrl}</small>`;
+        };
+
+        cameraSelect.addEventListener('change', _updateCamera);
+
+        // Get camera from URL parameter if provided
+        const urlParams = new URLSearchParams(window.location.search);
+        const cameraParam = urlParams.get('camera');
+        if (cameraParam && cameraParam >= 1 && cameraParam <= 8) {
+            cameraSelect.value = cameraParam;
+        }
+
+        // Initialize
+        _updateCamera();
+
+        // Handle image load errors
+        cameraStream.onerror = () => {
+            cameraInfo.innerHTML += '<div class="error">Failed to load stream. Make sure the tunnel is running.</div>';
+        };
+    </script>
+</body>
+</html>
