@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 sudo systemctl stop director.service
 sudo systemctl daemon-reload
