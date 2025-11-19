@@ -17,9 +17,6 @@ for arg in "$@"; do
   fi
 done
 
-echo "Copying new-robots directory to remote..."
-scp -r new-robots "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}/"
-
 echo "Connecting to $REMOTE_USER@$REMOTE_HOST..."
 
 ssh "${REMOTE_USER}@${REMOTE_HOST}" bash << EOF
