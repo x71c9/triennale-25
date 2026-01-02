@@ -7,6 +7,8 @@ PYTHON_SCRIPT="$SCRIPT_DIR/../new-robots/move_motor.py"
 SPARKLING_TIME=20
 WAIT_TIME=$((600 - SPARKLING_TIME))
 ROBOT_MOVE_INTERVAL=120  # 2 minutes
+SYNC_EVERY=5  # Sync every 5 iterations
+iteration_count=0
 
 # Trap SIGINT (Ctrl+C) to kill background jobs
 trap 'echo -e "\nStopping..."; jobs -p | xargs -r kill; exit' INT
@@ -35,22 +37,55 @@ _sparkling_loop() {
 # Function to handle robot movements - runs in background
 _robot_loop() {
   while true; do
-    echo "[$(date)] Starting coordinated robot movement sequence..."
+    iteration_count=$((iteration_count + 1))
     
-    for motor_id in 1 2 3 4; do
-      # Generate random position between 2500-5000mm
-      position=$(awk 'BEGIN{srand(); printf "%.1f", 2500 + rand() * 2500}')
+    # Check if it's time for synchronized movement (including first iteration)
+    if [ $iteration_count -eq 1 ] || [ $((iteration_count % SYNC_EVERY)) -eq 0 ]; then
+      echo "[$(date)] SYNC MODE: Moving all robots to synchronized positions..."
       
-      echo "[$(date)] Moving robot motor $motor_id to position $position mm..."
-      python3 "$PYTHON_SCRIPT" --motor-id $motor_id --position $position >/dev/null 2>&1 &
-      
-      # Random delay between 60-120 seconds (1-2 minutes) between robots
-      if [ $motor_id -lt 4 ]; then
-        delay=$((60 + RANDOM % 61))
-        echo "[$(date)] Waiting $delay seconds before next robot..."
-        sleep $delay
+      # Randomly decide direction: 0 = 2500->5000, 1 = 5000->2500
+      if [ $((RANDOM % 2)) -eq 0 ]; then
+        first_position=2500
+        second_position=5000
+        echo "[$(date)] Random direction: 2500 -> 5000"
+      else
+        first_position=5000
+        second_position=2500
+        echo "[$(date)] Random direction: 5000 -> 2500"
       fi
-    done
+      
+      # First move all robots to first position
+      for motor_id in 1 2 3 4; do
+        echo "[$(date)] Moving robot motor $motor_id to SYNC position $first_position mm..."
+        python3 "$PYTHON_SCRIPT" --motor-id $motor_id --position $first_position >/dev/null 2>&1 &
+      done
+      
+      echo "[$(date)] Waiting 15 seconds before second sync move..."
+      sleep 15
+      
+      # Then move all robots to second position
+      for motor_id in 1 2 3 4; do
+        echo "[$(date)] Moving robot motor $motor_id to SYNC position $second_position mm..."
+        python3 "$PYTHON_SCRIPT" --motor-id $motor_id --position $second_position >/dev/null 2>&1 &
+      done
+    else
+      echo "[$(date)] NORMAL MODE: Starting coordinated robot movement sequence..."
+      
+      for motor_id in 1 2 3 4; do
+        # Generate random position between 2500-5000mm
+        position=$(awk 'BEGIN{srand(); printf "%.1f", 2500 + rand() * 2500}')
+        
+        echo "[$(date)] Moving robot motor $motor_id to position $position mm..."
+        python3 "$PYTHON_SCRIPT" --motor-id $motor_id --position $position >/dev/null 2>&1 &
+        
+        # Random delay between 60-120 seconds (1-2 minutes) between robots
+        if [ $motor_id -lt 4 ]; then
+          delay=$((60 + RANDOM % 61))
+          echo "[$(date)] Waiting $delay seconds before next robot..."
+          sleep $delay
+        fi
+      done
+    fi
     
     echo "[$(date)] All robots movement commands sent. Waiting $ROBOT_MOVE_INTERVAL seconds before next sequence..."
     sleep $ROBOT_MOVE_INTERVAL
