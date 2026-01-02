@@ -60,8 +60,8 @@ _robot_loop() {
         python3 "$PYTHON_SCRIPT" --motor-id $motor_id --position $first_position >/dev/null 2>&1 &
       done
       
-      echo "[$(date)] Waiting 15 seconds before second sync move..."
-      sleep 15
+      echo "[$(date)] Waiting 45 seconds before second sync move..."
+      sleep 45
       
       # Then move all robots to second position
       for motor_id in 1 2 3 4; do
