@@ -68,6 +68,9 @@ _robot_loop() {
         echo "[$(date)] Moving robot motor $motor_id to SYNC position $second_position mm..."
         python3 "$PYTHON_SCRIPT" --motor-id $motor_id --position $second_position >/dev/null 2>&1 &
       done
+      
+      echo "[$(date)] Waiting 45 seconds after sync sequence..."
+      sleep 45
     else
       echo "[$(date)] NORMAL MODE: Starting coordinated robot movement sequence..."
       
