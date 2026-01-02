@@ -10,8 +10,8 @@ ROBOT_MOVE_INTERVAL=120  # 2 minutes
 SYNC_EVERY=5  # Sync every 5 iterations
 iteration_count=0
 
-# Trap SIGINT (Ctrl+C) to kill background jobs
-trap 'echo -e "\nStopping..."; jobs -p | xargs -r kill; exit' INT
+# Trap SIGINT (Ctrl+C) and SIGTERM (systemd stop) to kill background jobs
+trap 'echo -e "\nStopping..."; jobs -p | xargs -r kill; exit' INT TERM
 
 # Function to handle sparkling (relay control) - runs in background
 _sparkling_loop() {
@@ -58,6 +58,7 @@ _robot_loop() {
       for motor_id in 1 2 3 4; do
         echo "[$(date)] Moving robot motor $motor_id to SYNC position $first_position mm..."
         python3 "$PYTHON_SCRIPT" --motor-id $motor_id --position $first_position >/dev/null 2>&1 &
+        sleep 1  # Small delay to avoid serial port conflicts
       done
       
       echo "[$(date)] Waiting 45 seconds before second sync move..."
@@ -67,6 +68,7 @@ _robot_loop() {
       for motor_id in 1 2 3 4; do
         echo "[$(date)] Moving robot motor $motor_id to SYNC position $second_position mm..."
         python3 "$PYTHON_SCRIPT" --motor-id $motor_id --position $second_position >/dev/null 2>&1 &
+        sleep 1  # Small delay to avoid serial port conflicts
       done
       
       echo "[$(date)] Waiting 45 seconds after sync sequence..."
