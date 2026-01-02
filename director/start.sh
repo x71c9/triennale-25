@@ -9,6 +9,8 @@ WAIT_TIME=$((600 - SPARKLING_TIME))
 ROBOT_MOVE_INTERVAL=120  # 2 minutes
 SYNC_EVERY=5  # Sync every 5 iterations
 iteration_count=0
+NORMAL_SPEED=1000    # RPM for normal movements
+SYNC_SPEED=500       # RPM for sync movements (slower for coordination)
 
 # Trap SIGINT (Ctrl+C) and SIGTERM (systemd stop) to kill background jobs
 trap 'echo -e "\nStopping..."; jobs -p | xargs -r kill; exit' INT TERM
@@ -56,9 +58,9 @@ _robot_loop() {
       
       # First move all robots to first position
       for motor_id in 1 2 3 4; do
-        echo "[$(date)] Moving robot motor $motor_id to SYNC position $first_position mm..."
-        python3 "$PYTHON_SCRIPT" --motor-id $motor_id --position $first_position >/dev/null 2>&1 &
-        sleep 1  # Small delay to avoid serial port conflicts
+        echo "[$(date)] Moving robot motor $motor_id to SYNC position $first_position mm at $SYNC_SPEED RPM..."
+        python3 "$PYTHON_SCRIPT" --motor-id $motor_id --position $first_position --speed $SYNC_SPEED >/dev/null 2>&1 &
+        sleep 0.5  # Small delay to avoid serial port conflicts
       done
       
       echo "[$(date)] Waiting 45 seconds before second sync move..."
@@ -66,9 +68,9 @@ _robot_loop() {
       
       # Then move all robots to second position
       for motor_id in 1 2 3 4; do
-        echo "[$(date)] Moving robot motor $motor_id to SYNC position $second_position mm..."
-        python3 "$PYTHON_SCRIPT" --motor-id $motor_id --position $second_position >/dev/null 2>&1 &
-        sleep 1  # Small delay to avoid serial port conflicts
+        echo "[$(date)] Moving robot motor $motor_id to SYNC position $second_position mm at $SYNC_SPEED RPM..."
+        python3 "$PYTHON_SCRIPT" --motor-id $motor_id --position $second_position --speed $SYNC_SPEED >/dev/null 2>&1 &
+        sleep 0.5  # Small delay to avoid serial port conflicts
       done
       
       echo "[$(date)] Waiting 45 seconds after sync sequence..."
@@ -76,12 +78,16 @@ _robot_loop() {
     else
       echo "[$(date)] NORMAL MODE: Starting coordinated robot movement sequence..."
       
-      for motor_id in 1 2 3 4; do
+      # Shuffle motor order for random movement sequence
+      motor_order=$(echo "1 2 3 4" | tr ' ' '\n' | shuf | tr '\n' ' ')
+      echo "[$(date)] Movement order: $motor_order"
+      
+      for motor_id in $motor_order; do
         # Generate random position between 2500-5000mm
         position=$(awk 'BEGIN{srand(); printf "%.1f", 2500 + rand() * 2500}')
         
-        echo "[$(date)] Moving robot motor $motor_id to position $position mm..."
-        python3 "$PYTHON_SCRIPT" --motor-id $motor_id --position $position >/dev/null 2>&1 &
+        echo "[$(date)] Moving robot motor $motor_id to position $position mm at $NORMAL_SPEED RPM..."
+        python3 "$PYTHON_SCRIPT" --motor-id $motor_id --position $position --speed $NORMAL_SPEED >/dev/null 2>&1 &
         
         # Random delay between 60-120 seconds (1-2 minutes) between robots
         if [ $motor_id -lt 4 ]; then
